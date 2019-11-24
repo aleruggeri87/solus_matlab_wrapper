@@ -43,8 +43,6 @@ classdef SOLUS < handle
     end
     
     methods
-        %% INIT CLASS AND BASIC FUNCTIONs
-        
         function obj = SOLUS()
             SOLUS.loadLib();
             
@@ -87,24 +85,22 @@ classdef SOLUS < handle
         
         
         function SetSequence(obj, seq)
-            sl_str=struct('meas_time', single(0), 'attenuation', zeros(1,8,'uint16'), 'gate_delay_coarse', zeros(1,8,'uint8'), 'gate_delay_fine', zeros(1,8,'uint16'), 'laser_num', uint8(0));
-            seq_str=repmat(sl_str, 1, obj.N_ROWS);
-
-            for k=1:20
-                seq_str(k).attenuation(3)=uint16(12);
-                seq_str(k).gate_delay_coarse(3)=uint8(0);
-                seq_str(k).gate_delay_fine(3)=uint16(10*k);
-                seq_str(k).meas_time=single(5e-3);
-                seq_str(k).laser_num=uint8(31);
+            if ~isa(seq,'SOLUS_SequenceLine')
+                SOLUS.printError('badType','Input sequence must be type SOLUS_SequenceLine');
+            end
+            if length(seq) > obj.N_ROWS
+                SOLUS.printError('badLength',...
+                    ['Input sequence must be shorter than ' num2str(obj.N_ROWS+1) ' elements']);
             end
 
-            seq_byte=[];
-            for k=1:obj.N_ROWS
-                seq_byte=[seq_byte uint8([typecast(seq_str(k).meas_time,'uint8')...
-                    typecast(seq_str(k).attenuation,'uint8') typecast(seq_str(k).gate_delay_coarse,'uint8')...
-                    typecast(seq_str(k).gate_delay_fine,'uint8') typecast(seq_str(k).laser_num,'uint8')])]; %#ok<AGROW>
+            seq_byte=zeros(1,obj.N_ROWS*45,'uint8');
+            i=1;
+            for k=1:length(seq)
+                seq_byte(i:i+45-1)=uint8([typecast(seq(k).meas_time,'uint8')...
+                    typecast(seq(k).attenuation,'uint8') typecast(seq(k).gate_delay_c,'uint8')...
+                    typecast(seq(k).gate_delay_f,'uint8') typecast(seq(k).laser_num,'uint8')]);
+                i=i+45;
             end
-
             seqPtr = libpointer('voidPtr',seq_byte);
 
             % SOLUS_Return SOLUS_SetSequence(SOLUS_H solus, Sequence* sequence)
@@ -113,24 +109,24 @@ classdef SOLUS < handle
         end
 
         function seq_str_rd = GetSequence(obj)
-            seq_b_rd=zeros(1,1e6,'uint8');
+            seq_b_rd=zeros(1,obj.N_ROWS*45,'uint8');
             seqPtr_rd = libpointer('voidPtr',seq_b_rd);
 
             % SOLUS_Return SOLUS_GetSequence(SOLUS_H solus, Sequence* sequence)
             err=calllib(obj.LIBALIAS, 'SOLUS_GetSequence', obj.s, seqPtr_rd);
             SOLUS.checkError(err);
             tic
-            i=45*(obj.N_ROWS-1);
-            for k=obj.N_ROWS:-1:1
+            seq_str_rd(obj.N_ROWS)=SOLUS_SequenceLine();
+            i=0;
+            for k=1:obj.N_ROWS
                 seq_str_rd(k).meas_time=typecast(seqPtr_rd.Value((1:4)+i),'single');
                 seq_str_rd(k).attenuation=typecast(seqPtr_rd.Value((5:20)+i),'uint16');
-                seq_str_rd(k).gate_delay_coarse=typecast(seqPtr_rd.Value((21:28)+i),'uint8');
-                seq_str_rd(k).gate_delay_fine=typecast(seqPtr_rd.Value((29:44)+i),'uint16');
+                seq_str_rd(k).gate_delay_c=typecast(seqPtr_rd.Value((21:28)+i),'uint8');
+                seq_str_rd(k).gate_delay_f=typecast(seqPtr_rd.Value((29:44)+i),'uint16');
                 seq_str_rd(k).laser_num=typecast(seqPtr_rd.Value((45)+i),'uint8');
-                i=i-45;
+                i=i+45;
             end
             toc
-            seq_str_rd(5)
         end
 
         function SetOptodeParams(obj, LD_params, GSIPM_params, optode_addr)
@@ -188,7 +184,7 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function SOLUS_SetControlParams(ctrl_param)
+        function SOLUS_SetControlParams(obj, ctrl_param)
             if ~isa(ctrl_param, 'SOLUS_Control_Parameters')
                 SOLUS.printError('badType','ctrl_param must be type SOLUS_Control_Parameters');
             end
@@ -198,6 +194,12 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_SetControlParams', obj.s, cp);
             SOLUS.checkError(err);
         end
+
+        function ReadMCU_ID(obj, address)
+            % SOLUS_Return SOLUS_ReadMCU_ID(SOLUS_H solus, ADDRESS address) 
+            err=calllib(obj.LIBALIAS, 'SOLUS_ReadMCU_ID', obj.s, address);
+            SOLUS.checkError(err);
+        end        
         
         function id = GetMCU_ID(obj, address)
             % SOLUS_Return SOLUS_GetMCU_ID(SOLUS_H solus, ADDRESS address, UINT16 *id) 

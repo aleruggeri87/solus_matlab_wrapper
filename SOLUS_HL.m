@@ -1,4 +1,4 @@
-classdef SOLUS_HL% < handle
+classdef SOLUS_HL < handle
     % SOLUS_HL 
     %  SOLUS High-Level library.
     %
@@ -10,13 +10,16 @@ classdef SOLUS_HL% < handle
     %
     %   Rev 1.0-20/11/2019: first issue
     
-    properties
-        solus;
-    end
-    
     properties (Dependent)
         laserFrequency;
         gsipm_params;
+        sequence;
+    end
+    
+    properties(SetAccess = private)
+        solus;
+        statusControl;
+        optodeID;
     end
     
     properties (Access = private)
@@ -36,11 +39,7 @@ classdef SOLUS_HL% < handle
             value = obj.s;
         end
         
-        function obj = set.solus()
-            error('Cannot set solus property');
-        end
-        
-        function obj = set.laserFrequency(obj,value)
+        function set.laserFrequency(obj,value)
             obj.s.SetLaserFrequency(value);
         end
         
@@ -49,10 +48,32 @@ classdef SOLUS_HL% < handle
             value = obj.s.GetLaserFrequency();
         end
         
+        function value = get.statusControl(obj)
+            obj.s.ReadStatusControl();
+            value = obj.s.GetStatusControl();
+        end
+        
+        function value = get.sequence(obj)
+            value = obj.s.GetSequence();
+        end
+        
+        function set.sequence(obj, value)
+            obj.s.SetSequence(value);
+        end
+        
         function value = get.gsipm_params(obj)
-            for k=1:8
-                try
-                    value(k)=obj.s.GetOptodeParams(k);
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    value(k)=obj.s.GetOptodeParams(k-1);
+                end
+            end
+        end
+        
+        function value = get.optodeID(obj)
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    % No need to call ReadMCU_ID!
+                    value(k)=obj.s.GetMCU_ID(k-1);
                 end
             end
         end
