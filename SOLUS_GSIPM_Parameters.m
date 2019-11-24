@@ -1,4 +1,4 @@
-classdef SOLUS_GSIPM_Parameters < handle
+classdef SOLUS_GSIPM_Parameters
     % SOLUS_GSIPM_Parameters 
     %
     %   Author(s):  Alessandro RUGGERI
@@ -53,7 +53,7 @@ classdef SOLUS_GSIPM_Parameters < handle
                 'GATE_CLOSE', obj.gate_close, 'GATE_OPEN', obj.gate_open);
         end
         %% convert from struct
-        function fromStruct(obj, str)
+        function obj = fromStruct(obj, str)
             % convert struct to class
             if isa(str,'struct')
                 fields={'EN_QUADRANT_1', 'EN_QUADRANT_2', 'EN_QUADRANT_3', 'EN_QUADRANT_4', 'STOP', 'GATE_CLOSE', 'GATE_OPEN'};
@@ -83,28 +83,28 @@ classdef SOLUS_GSIPM_Parameters < handle
         end
         % below functions to validate input parameters size
         % and convert to the desired type
-        function set.en1(obj,val)
+        function obj = set.en1(obj,val)
             if isscalar(val)
                 obj.en1=uint8(val);
             else
                 SOLUS_GSIPM_Parameters.printError(1);
             end
         end
-        function set.en2(obj,val)
+        function obj = set.en2(obj,val)
             if isscalar(val)
                 obj.en2=uint8(val);
             else
                 SOLUS_GSIPM_Parameters.printError(1);
             end
         end
-        function set.en3(obj,val)
+        function obj = set.en3(obj,val)
             if isscalar(val)
                 obj.en3=uint8(val);
             else
                 SOLUS_GSIPM_Parameters.printError(1);
             end
         end
-        function set.en4(obj,val)
+        function obj = set.en4(obj,val)
             if isscalar(val)
                 obj.en4=uint8(val);
             else
@@ -112,21 +112,21 @@ classdef SOLUS_GSIPM_Parameters < handle
             end
         end
         
-        function set.stop(obj,val)
+        function obj = set.stop(obj,val)
             if isscalar(val)
                 obj.stop=uint8(val);
             else
                 SOLUS_GSIPM_Parameters.printError(1);
             end
         end
-        function set.gate_close(obj,val)
+        function obj = set.gate_close(obj,val)
             if isscalar(val)
                 obj.gate_close=uint8(val);
             else
                 SOLUS_GSIPM_Parameters.printError(1);
             end
         end
-        function set.gate_open(obj,val)
+        function obj = set.gate_open(obj,val)
             if isscalar(val)
                 obj.gate_open=uint8(val);
             else

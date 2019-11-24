@@ -1,5 +1,5 @@
 classdef SOLUS_Control_Parameters
-    % SOLUS_Control_Parameters 
+    % SOLUS_Control_Parameters
     %
     %   Author(s):  Alessandro RUGGERI
     %   Revision:   1.0 
@@ -43,7 +43,7 @@ classdef SOLUS_Control_Parameters
                 'GSIPM3v3_Voltage', obj.GSIPM3v3_Voltage);
         end
         %% convert from struct
-        function fromStruct(obj, str)
+        function obj = fromStruct(obj, str)
             % convert struct to class
             if isa(str,'struct')
                 fields={'LD_Voltage', 'SPAD_Voltage', 'GSIPM3v3_Voltage'};

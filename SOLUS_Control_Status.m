@@ -1,4 +1,4 @@
-classdef SOLUS_Control_Status < handle
+classdef SOLUS_Control_Status
     % SOLUS_Control_Status 
     %
     %   Author(s):  Alessandro RUGGERI
@@ -47,7 +47,7 @@ classdef SOLUS_Control_Status < handle
                 obj.meas_state*256+obj.stusb_bad_cfg*4096+obj.usbC_pow*8192+obj.interlock_active*32768;
         end
         %% convert from int
-        function fromInt(obj, num)
+        function obj = fromInt(obj, num)
             if isa(num,'uint16')
                 obj.q_fromPC_is_full=bitget(num,1);
                 obj.q_fromPC_data_is_full=bitget(num,2);
@@ -57,9 +57,9 @@ classdef SOLUS_Control_Status < handle
                 obj.Vinput_limit=bitget(num,6);
                 obj.P5V_error=bitget(num,7);
                 obj.Vpol_error_oth=bitget(num,8);
-                obj.meas_state=sum(bitget(num,9:12).*uint16([1 2 4 8]));
+                obj.meas_state=uint16(sum(bitget(num,9:12).*uint16([1 2 4 8])));
                 obj.stusb_bad_cfg=bitget(num,13);
-                obj.usbC_pow=sum(bitget(num,14:15).*uint16([1 2]));
+                obj.usbC_pow=uint16(sum(bitget(num,14:15).*uint16([1 2])));
                 obj.interlock_active=bitget(num,16);
             else
                 error('SOLUS_Control_Status:wrongArgs',...
