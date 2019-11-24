@@ -260,18 +260,21 @@ classdef SOLUS < handle
                     %case 'win32'
                     %    loadlibrary(dll32fname, headerfname, 'alias', LIBALIAS);
                     case 'win64'
-                        if exist('SOLUSproto.m', 'file')
-                            [notfound, warnings] = loadlibrary(dll64fname, @SOLUSproto, 'alias', SOLUS.LIBALIAS);
+                        if exist('SOLUS_header.m', 'file')
+                            [notfound, warnings] = loadlibrary(dll64fname, @SOLUS_header, 'alias', SOLUS.LIBALIAS);
                         else
                             [notfound, warnings] = loadlibrary(dll64fname, headerfname, ...
                                 'alias', SOLUS.LIBALIAS, ...
-                                'mfilename', 'SOLUSproto.m');
+                                'mfilename', 'SOLUS_header.m');
+                            SOLUS.unloadLib();
+                            SOLUS.adjustProtofile('SOLUS_header.m');
+                            SOLUS.loadLib();
                         end
                     otherwise
-                        error([ errid 'wrongOS'],'Not supported operating system');
+                        error([errid 'wrongOS'],'Not supported operating system');
                 end        
-                if libisloaded(SOLUS.LIBALIAS) == 0
-                   error([ errid 'loadfailed'],'Unable to load the SOLUS_SDK');
+                if ~SOLUS.isLibLoad()
+                   error([errid 'loadfailed'],'Unable to load the SOLUS_SDK');
                 end
             end
         end
@@ -297,6 +300,22 @@ classdef SOLUS < handle
         function printError(type, msg)
             ME = MException(['SOLUS:' type], msg);
             throw(ME);
+        end
+        function adjustProtofile(filename)
+            repl{2}={'fcns.name{fcnNum}=''SOLUS_SetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
+            repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
+            fid=fopen(filename);
+            str=fread(fid,inf,'*char')';
+            fclose(fid);
+            movefile(filename, [filename '_original']);
+            for k=1:length(repl)
+                idx=strfind(str,repl{k}{1});
+                idx2=strfind(str(idx:end),repl{k}{2});
+                str=[str(1:idx+idx2-2) repl{k}{3} str(idx+idx2-1+length(repl{k}{2}):end)];
+            end
+            fid=fopen(filename,'w');
+            fwrite(fid,str,'char');
+            fclose(fid);
         end
     end
 end
