@@ -10,18 +10,24 @@ classdef SOLUS_HL < handle
     %
     %   Rev 1.0-20/11/2019: first issue
     
+    properties
+        max_area=zeros(1,8);
+        avoid_read=false;
+    end
+    
     properties (Dependent)
         laserFrequency;
         gsipm_params;
         sequence;
         calibMap;
-        max_area;
     end
     
     properties(SetAccess = private)
         solus;
         statusControl;
         optodeID;
+        statusLD=SOLUS_LD_Status();
+        statusOptode;
     end
     
     properties (Access = private)
@@ -46,12 +52,16 @@ classdef SOLUS_HL < handle
         end
         
         function value = get.laserFrequency(obj)
-            obj.s.ReadLaserFrequency();
+            if ~obj.avoid_read
+                obj.s.ReadLaserFrequency();
+            end
             value = obj.s.GetLaserFrequency();
         end
         
         function value = get.statusControl(obj)
-            obj.s.ReadStatusControl();
+            if ~obj.avoid_read
+                obj.s.ReadStatusControl();
+            end
             value = obj.s.GetStatusControl();
         end
         
@@ -83,8 +93,10 @@ classdef SOLUS_HL < handle
         function value = get.calibMap(obj)
             for k=8:-1:1
                 if obj.s.optConnected(k)
-                    obj.s.ReadCalibrationMap(k-1);
-                    [value(k) obj.max_area(k)]=obj.s.GetCalibrationMap(k-1);
+                    if ~obj.avoid_read
+                        obj.s.ReadCalibrationMap(k-1);
+                    end
+                    [value(:,k) obj.max_area(k)]=obj.s.GetCalibrationMap(k-1);
                 end
             end
         end
@@ -93,7 +105,21 @@ classdef SOLUS_HL < handle
             % remember to set max_area before!
             for k=8:-1:1
                 if obj.s.optConnected(k)
-                    obj.s.SetCalibrationMap(k-1, value, obj.max_area(k));
+                    obj.s.SetCalibrationMap(k-1, value(:,k), obj.max_area(k));
+                end
+            end
+        end
+        
+        function value = get.statusOptode(obj)
+            obj.statusLD(4,8)=SOLUS_LD_Status();
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    if ~obj.avoid_read
+                        obj.s.ReadStatusOptode(k-1);
+                    end
+                    [status, LD_status]=obj.s.GetStatusOptode(k-1);
+                    value(k)=status;
+                    obj.statusLD(:,k)=LD_status;
                 end
             end
         end

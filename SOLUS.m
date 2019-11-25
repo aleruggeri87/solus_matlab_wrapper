@@ -40,6 +40,8 @@ classdef SOLUS < handle
     properties (Constant, Access = private)
         LIBALIAS = 'SOLUS_SDK';
         N_ROWS=384;
+        N_LD=4;
+        N_OPT=8;
     end
     
     methods
@@ -179,7 +181,7 @@ classdef SOLUS < handle
         
         function ctrl_param = GetControlParams(obj)
             % SOLUS_Return SOLUS_GetControlParams(SOLUS_H solus, Control_params* Params)
-            [err, ~, cp]=calllib(obj.LIBALIAS, 'GetControlParams', obj.s, flags, mask);
+            [err, ~, cp]=calllib(obj.LIBALIAS, 'SOLUS_GetControlParams', obj.s, flags, mask);
             ctrl_param = SOLUS_Control_Parameters(cp);
             SOLUS.checkError(err);
         end
@@ -193,6 +195,23 @@ classdef SOLUS < handle
             % SOLUS_Return SOLUS_SetControlParams(SOLUS_H solus, Control_params Params)
             err=calllib(obj.LIBALIAS, 'SOLUS_SetControlParams', obj.s, cp);
             SOLUS.checkError(err);
+        end
+        
+        function ReadStatusOptode(obj, optode)
+            % SOLUS_Return SOLUS_ReadStatusOptode(SOLUS_H solus, ADDRESS optode)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ReadStatusOptode', obj.s, optode);
+            SOLUS.checkError(err);
+        end
+        
+        function [status, LD_status]=GetStatusOptode(obj, optode)
+            % SOLUS_Return SOLUS_GetStatusOptode(SOLUS_H solus, ADDRESS optode, UINT16* status, LDs_status* LD_Status)
+            [err, ~, stat, LD_stat]=calllib(obj.LIBALIAS, 'SOLUS_GetStatusOptode',...
+                obj.s, optode, 0, zeros(1,obj.N_LD,'uint32'));
+            SOLUS.checkError(err);
+            status=SOLUS_Optode_Status(stat);
+            for k=obj.N_LD:-1:1
+                LD_status(k)=SOLUS_LD_Status(LD_stat(k));
+            end
         end
         
         function SetCalibrationMap(obj, optode, map, max_area)
@@ -215,7 +234,7 @@ classdef SOLUS < handle
         
         function [map, max_area]=GetCalibrationMap(obj, optode)
             % SOLUS_Return SOLUS_GetCalibrationMap(SOLUS_H solus, ADDRESS optode, CalMap* data, UINT16* MaxArea)
-            [err, ~, map, max_area]=calllib(obj.LIBALIAS, 'SOLUS_GetCalibrationMap', obj.s, optode, [], 0);
+            [err, ~, map, max_area]=calllib(obj.LIBALIAS, 'SOLUS_GetCalibrationMap', obj.s, optode, zeros(1,1728), 0);
             SOLUS.checkError(err);
         end
 
