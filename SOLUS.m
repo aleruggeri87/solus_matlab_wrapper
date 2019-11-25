@@ -194,6 +194,30 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_SetControlParams', obj.s, cp);
             SOLUS.checkError(err);
         end
+        
+        function SetCalibrationMap(obj, optode, map, max_area)
+            if ~isvector(map)
+                SOLUS.printError('badType','map must be a vector');
+            end
+            if length(map)~=1728
+                SOLUS.printError('badLength','length of map must be 1728');
+            end
+            % SOLUS_Return SOLUS_SetCalibrationMap(SOLUS_H solus, ADDRESS optode, CalMap* data, UINT16 MaxArea)
+            err=calllib(obj.LIBALIAS, 'SOLUS_SetCalibrationMap', obj.s, optode, map, max_area);
+            SOLUS.checkError(err);
+        end
+        
+        function ReadCalibrationMap(obj, optode)
+            % SOLUS_Return SOLUS_ReadCalibrationMap(SOLUS_H solus, ADDRESS optode)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ReadCalibrationMap', obj.s, optode);
+            SOLUS.checkError(err);
+        end
+        
+        function [map, max_area]=GetCalibrationMap(obj, optode)
+            % SOLUS_Return SOLUS_GetCalibrationMap(SOLUS_H solus, ADDRESS optode, CalMap* data, UINT16* MaxArea)
+            [err, ~, map, max_area]=calllib(obj.LIBALIAS, 'SOLUS_GetCalibrationMap', obj.s, optode, [], 0);
+            SOLUS.checkError(err);
+        end
 
         function ReadMCU_ID(obj, address)
             % SOLUS_Return SOLUS_ReadMCU_ID(SOLUS_H solus, ADDRESS address) 
@@ -203,7 +227,7 @@ classdef SOLUS < handle
         
         function id = GetMCU_ID(obj, address)
             % SOLUS_Return SOLUS_GetMCU_ID(SOLUS_H solus, ADDRESS address, UINT16 *id) 
-            [err, ~, id ]=calllib(obj.LIBALIAS, 'SOLUS_GetMCU_ID', obj.s, address, 0);
+            [err, ~, id]=calllib(obj.LIBALIAS, 'SOLUS_GetMCU_ID', obj.s, address, 0);
             SOLUS.checkError(err);
         end
 
@@ -263,9 +287,9 @@ classdef SOLUS < handle
                     %    loadlibrary(dll32fname, headerfname, 'alias', LIBALIAS);
                     case 'win64'
                         if exist('SOLUS_header.m', 'file')
-                            [notfound, warnings] = loadlibrary(dll64fname, @SOLUS_header, 'alias', SOLUS.LIBALIAS);
+                            loadlibrary(dll64fname, @SOLUS_header, 'alias', SOLUS.LIBALIAS);
                         else
-                            [notfound, warnings] = loadlibrary(dll64fname, headerfname, ...
+                            loadlibrary(dll64fname, headerfname, ...
                                 'alias', SOLUS.LIBALIAS, ...
                                 'mfilename', 'SOLUS_header.m');
                             SOLUS.unloadLib();

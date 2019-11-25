@@ -14,6 +14,8 @@ classdef SOLUS_HL < handle
         laserFrequency;
         gsipm_params;
         sequence;
+        calibMap;
+        max_area;
     end
     
     properties(SetAccess = private)
@@ -74,6 +76,24 @@ classdef SOLUS_HL < handle
                 if obj.s.optConnected(k)
                     % No need to call ReadMCU_ID!
                     value(k)=obj.s.GetMCU_ID(k-1);
+                end
+            end
+        end
+        
+        function value = get.calibMap(obj)
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    obj.s.ReadCalibrationMap(k-1);
+                    [value(k) obj.max_area(k)]=obj.s.GetCalibrationMap(k-1);
+                end
+            end
+        end
+        
+        function set.calibMap(obj, value)
+            % remember to set max_area before!
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    obj.s.SetCalibrationMap(k-1, value, obj.max_area(k));
                 end
             end
         end
