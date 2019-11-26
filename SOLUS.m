@@ -25,16 +25,6 @@ classdef SOLUS < handle
         OPTODE7 = 6;
         OPTODE8 = 7;
         CONTROL = 8;
-
-        FLAG_FORCE_LASER_OFF = 1;
-        FLAG_AUTOCAL = 2;
-        FLAG_OVERRIDE_MAP = 4;
-        FLAG_GSIPM_GATE_OFF_AFTER_MEAS = 8;
-        FLAG_LASER_OFF_AFTER_MEAS = 16;
-        FLAG_TURNOFF_UNUSED_LD = 32;
-        FLAG_TRIM_METHOD_BITL = 64;
-        FLAG_TRIM_METHOD_BITh = 128;
-        FLAG_DISABLE_INTERLOCK = 256;
     end
     
     properties (Constant, Access = private)
@@ -174,9 +164,26 @@ classdef SOLUS < handle
                 mask = flags;
             end
             
+            if ~isa(flags, 'SOLUS_Flags')
+                SOLUS.printError('badType','flags must be type SOLUS_Flags');
+            end
+            if ~isa(mask, 'SOLUS_Flags')
+                SOLUS.printError('badType','mask must be type SOLUS_Flags');
+            end
+            
+            flg=flags.toInt();
+            msk=mask.toInt();
+            
             % SOLUS_Return SOLUS_SetFlags(SOLUS_H solus, UINT16 flags, UINT16 mask)
-            err=calllib(obj.LIBALIAS, 'SOLUS_SetFlags', obj.s, flags, mask);
+            err=calllib(obj.LIBALIAS, 'SOLUS_SetFlags', obj.s, flg, msk);
             SOLUS.checkError(err);
+        end
+        
+        function flags = GetFlags(obj)
+            % SOLUS_Return SOLUS_GetFlags(SOLUS_H solus, UINT16* flags)
+            [err,~,flg] =calllib(obj.LIBALIAS, 'SOLUS_GetFlags', obj.s, 0);
+            SOLUS.checkError(err);
+            flags = SOLUS_Flags(flg);
         end
         
         function ctrl_param = GetControlParams(obj)

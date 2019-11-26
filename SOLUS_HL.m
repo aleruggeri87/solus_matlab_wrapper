@@ -21,6 +21,7 @@ classdef SOLUS_HL < handle
         LD_params;
         sequence;
         calibMap;
+        flags;
     end
     
     properties(SetAccess = private)
@@ -143,6 +144,14 @@ classdef SOLUS_HL < handle
                     obj.statusLD(:,k)=repmat(SOLUS_LD_Status,4);
                 end
             end
+        end
+        
+        function value = get.flags(obj)
+            value=obj.s.GetFlags();
+        end
+        
+        function set.flags(obj,flags)
+            obj.s.SetFlags(flags);
         end
         
     end
