@@ -41,10 +41,10 @@ classdef SOLUS_Control_Status
         end
         
         % convert class to int
-        function int = toStruct(obj)
-            int=obj.q_fromPC_is_full+obj.q_fromPC_data_is_full*2+obj.Vpol_error_run*4+obj.Ispad_limit*8+...
+        function int = toInt(obj)
+            int=uint16(obj.q_fromPC_is_full+obj.q_fromPC_data_is_full*2+obj.Vpol_error_run*4+obj.Ispad_limit*8+...
                 obj.Iinput_limit*16+obj.Vinput_limit*32+obj.P5V_error*64+obj.Vpol_error_oth*128+...
-                obj.meas_state*256+obj.stusb_bad_cfg*4096+obj.usbC_pow*8192+obj.interlock_active*32768;
+                obj.meas_state*256+obj.stusb_bad_cfg*4096+obj.usbC_pow*8192+obj.interlock_active*32768);
         end
         %% convert from int
         function obj = fromInt(obj, num)

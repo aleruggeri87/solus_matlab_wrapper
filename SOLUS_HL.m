@@ -18,6 +18,7 @@ classdef SOLUS_HL < handle
     properties (Dependent)
         laserFrequency;
         gsipm_params;
+        LD_params;
         sequence;
         calibMap;
     end
@@ -76,7 +77,19 @@ classdef SOLUS_HL < handle
         function value = get.gsipm_params(obj)
             for k=8:-1:1
                 if obj.s.optConnected(k)
+                    [~,value(k)]=obj.s.GetOptodeParams(k-1);
+                else
+                    value(k)=SOLUS_GSIPM_Parameters();
+                end
+            end
+        end
+        
+        function value = get.LD_params(obj)
+            for k=8:-1:1
+                if obj.s.optConnected(k)
                     value(k)=obj.s.GetOptodeParams(k-1);
+                else
+                    value(k)=SOLUS_LD_Parameters();
                 end
             end
         end
@@ -86,6 +99,8 @@ classdef SOLUS_HL < handle
                 if obj.s.optConnected(k)
                     % No need to call ReadMCU_ID!
                     value(k)=obj.s.GetMCU_ID(k-1);
+                else
+                    value(k)=0;
                 end
             end
         end
@@ -97,6 +112,9 @@ classdef SOLUS_HL < handle
                         obj.s.ReadCalibrationMap(k-1);
                     end
                     [value(:,k) obj.max_area(k)]=obj.s.GetCalibrationMap(k-1);
+                else
+                    value(:,k)=zeros(1,1728,'uint16');
+                    obj.max_area(k)=0;
                 end
             end
         end
@@ -120,6 +138,9 @@ classdef SOLUS_HL < handle
                     [status, LD_status]=obj.s.GetStatusOptode(k-1);
                     value(k)=status;
                     obj.statusLD(:,k)=LD_status;
+                else
+                    value(k)=SOLUS_Optode_Status();
+                    obj.statusLD(:,k)=repmat(SOLUS_LD_Status,4);
                 end
             end
         end
