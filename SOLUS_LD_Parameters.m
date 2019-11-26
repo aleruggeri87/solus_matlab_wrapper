@@ -8,7 +8,7 @@ classdef SOLUS_LD_Parameters
     %   Copyright 2019  Micro Photon Devices
     %   
     %   Usage:
-    %   ldp = SOLUS_LD_Parameters(); initialize and fill all the  parameters with 0
+    %   ldp = SOLUS_LD_Parameters(); initialize and fill all the parameters with 0
     %   ldp = SOLUS_LD_Parameters(ld_struct); initialize and fill with data from the struct. 
     %   ldp = SOLUS_LD_Parameters(d_f, d_c, w_f, w_c, i_f, i_c, c, s_f, s_c);
     %       initialize and fill data with given parameters.
@@ -35,7 +35,7 @@ classdef SOLUS_LD_Parameters
                     'SOLUS_LD_Parameters must be called with 0, 1 or 9 arguments');
             end
             if nargin == 1
-                obj=obj.fromStruct(d_f__struct);                
+                obj=obj.fromStruct(d_f__struct);
             elseif nargin == 9
                 obj.delay_f=d_f__struct;
                 obj.delay_c=d_c;
@@ -58,7 +58,7 @@ classdef SOLUS_LD_Parameters
         end
         
         % convert from struct
-        function fromStruct(obj, str)
+        function obj=fromStruct(obj, str)
             if isa(str,'struct')
                 fields={'DELAY_F', 'DELAY_C', 'WIDTH_F', 'WIDTH_C', 'I_FINE', 'I_COARSE', 'CITR', 'SYNCD_F', 'SYNCD_C'};
                 ok=true;

@@ -75,7 +75,7 @@ fcns.thunkname{fcnNum}='SOLUS_ReturnvoidPtrADDRESSvoidPtrThunk';fcns.name{fcnNum
 %  SOLUS_Return SOLUS_ReadDiagOptode ( SOLUS_H solus , ADDRESS Optode ); 
 fcns.thunkname{fcnNum}='SOLUS_ReturnvoidPtrADDRESSThunk';fcns.name{fcnNum}='SOLUS_ReadDiagOptode'; fcns.calltype{fcnNum}='Thunk'; fcns.LHS{fcnNum}='SOLUS_Return'; fcns.RHS{fcnNum}={'s_SOLUS_HPtr', 'ADDRESS'};fcnNum=fcnNum+1;
 %  SOLUS_Return SOLUS_GetDiagOptode ( SOLUS_H solus , ADDRESS Optode , LDs_analog * LD_Analog , Optode_analog_acq * Optode_Analog ); 
-fcns.thunkname{fcnNum}='SOLUS_ReturnvoidPtrADDRESSvoidPtrvoidPtrThunk';fcns.name{fcnNum}='SOLUS_GetDiagOptode'; fcns.calltype{fcnNum}='Thunk'; fcns.LHS{fcnNum}='SOLUS_Return'; fcns.RHS{fcnNum}={'s_SOLUS_HPtr', 'ADDRESS', 's_LD_AnalogPtr', 'Optode_analog_acqPtr'};fcnNum=fcnNum+1;
+fcns.thunkname{fcnNum}='SOLUS_ReturnvoidPtrADDRESSvoidPtrvoidPtrThunk';fcns.name{fcnNum}='SOLUS_GetDiagOptode'; fcns.calltype{fcnNum}='Thunk'; fcns.LHS{fcnNum}='SOLUS_Return'; fcns.RHS{fcnNum}={'s_SOLUS_HPtr', 'ADDRESS', 'uint16Ptr', 'Optode_analog_acqPtr'};fcnNum=fcnNum+1;
 %  SOLUS_Return SOLUS_ReadDiagControl ( SOLUS_H solus ); 
 fcns.thunkname{fcnNum}='SOLUS_ReturnvoidPtrThunk';fcns.name{fcnNum}='SOLUS_ReadDiagControl'; fcns.calltype{fcnNum}='Thunk'; fcns.LHS{fcnNum}='SOLUS_Return'; fcns.RHS{fcnNum}={'s_SOLUS_HPtr'};fcnNum=fcnNum+1;
 %  SOLUS_Return SOLUS_GetDiagControl ( SOLUS_H solus , Control_analog_acq * Control_Analog ); 

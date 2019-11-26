@@ -69,10 +69,11 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function ctrl_an_acq_ret = GetDiagControl(obj)
+        function ctrl_an_acq = GetDiagControl(obj)
             % SOLUS_Return SOLUS_GetDiagControl(SOLUS_H solus, Control_analog_acq* Control_Analog);
-            [err,~,ctrl_an_acq_ret]=calllib(obj.LIBALIAS, 'SOLUS_GetDiagControl', obj.s, []);
+            [err,~,ctrl_an_a]=calllib(obj.LIBALIAS, 'SOLUS_GetDiagControl', obj.s, []);
             SOLUS.checkError(err);
+            ctrl_an_acq=SOLUS_Control_analog(ctrl_an_a);
         end
         
         
@@ -155,8 +156,24 @@ classdef SOLUS < handle
         function status = GetStatusControl(obj)
             % SOLUS_Return SOLUS_GetStatusControl(SOLUS_H solus, UINT16* status)
             [err, ~, stat]=calllib(obj.LIBALIAS, 'SOLUS_GetStatusControl', obj.s, 0);
-            SOLUS.checkError(err);           
+            SOLUS.checkError(err);
             status = SOLUS_Control_Status(stat);
+        end
+        
+        function ReadDiagOptode(obj, optode)
+            % SOLUS_Return SOLUS_ReadDiagOptode(SOLUS_H solus, ADDRESS Optode)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ReadDiagOptode', obj.s, optode);
+            SOLUS.checkError(err);           
+        end
+        
+        function [LD_analog, Optode_analog]=GetDiagOptode(obj, optode)
+            % SOLUS_Return SOLUS_GetDiagOptode(SOLUS_H solus, ADDRESS Optode, LDs_analog* LD_Analog, Optode_analog_acq* Optode_Analog)
+            [err, ~, LD_an_arry, Opt_an]=calllib(obj.LIBALIAS, 'SOLUS_GetDiagOptode', obj.s, optode, zeros(1,4*5,'uint16'), []);
+            SOLUS.checkError(err);
+            for k=4:-1:1
+                LD_analog(k)=SOLUS_LD_analog(LD_an_arry((1:5)+(k-1)*5));
+            end
+            Optode_analog=SOLUS_Optode_analog(Opt_an);
         end
             
         function SetFlags(obj, flags, mask)
@@ -354,6 +371,7 @@ classdef SOLUS < handle
             throw(ME);
         end
         function adjustProtofile(filename)
+            repl{3}={'fcns.name{fcnNum}=''SOLUS_GetDiagOptode'';', 's_LD_AnalogPtr', 'uint16Ptr'};
             repl{2}={'fcns.name{fcnNum}=''SOLUS_SetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
             repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
             fid=fopen(filename);

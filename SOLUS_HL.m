@@ -12,7 +12,7 @@ classdef SOLUS_HL < handle
     
     properties
         max_area=zeros(1,8);
-        avoid_read=false;
+        avoid_read_HW=false;
     end
     
     properties (Dependent)
@@ -30,6 +30,9 @@ classdef SOLUS_HL < handle
         optodeID;
         statusLD=SOLUS_LD_Status();
         statusOptode;
+        analogLD;
+        analogOptode;
+        analogControl;
     end
     
     properties (Access = private)
@@ -54,14 +57,14 @@ classdef SOLUS_HL < handle
         end
         
         function value = get.laserFrequency(obj)
-            if ~obj.avoid_read
+            if ~obj.avoid_read_HW
                 obj.s.ReadLaserFrequency();
             end
             value = obj.s.GetLaserFrequency();
         end
         
         function value = get.statusControl(obj)
-            if ~obj.avoid_read
+            if ~obj.avoid_read_HW
                 obj.s.ReadStatusControl();
             end
             value = obj.s.GetStatusControl();
@@ -109,7 +112,7 @@ classdef SOLUS_HL < handle
         function value = get.calibMap(obj)
             for k=8:-1:1
                 if obj.s.optConnected(k)
-                    if ~obj.avoid_read
+                    if ~obj.avoid_read_HW
                         obj.s.ReadCalibrationMap(k-1);
                     end
                     [value(:,k) obj.max_area(k)]=obj.s.GetCalibrationMap(k-1);
@@ -133,7 +136,7 @@ classdef SOLUS_HL < handle
             obj.statusLD(4,8)=SOLUS_LD_Status();
             for k=8:-1:1
                 if obj.s.optConnected(k)
-                    if ~obj.avoid_read
+                    if ~obj.avoid_read_HW
                         obj.s.ReadStatusOptode(k-1);
                     end
                     [status, LD_status]=obj.s.GetStatusOptode(k-1);
@@ -152,6 +155,39 @@ classdef SOLUS_HL < handle
         
         function set.flags(obj,flags)
             obj.s.SetFlags(flags);
+        end
+        
+        function value = get.analogLD(obj)
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    if ~obj.avoid_read_HW
+                        obj.s.ReadDiagOptode(k-1);
+                    end
+                    value(:,k) = obj.s.GetDiagOptode(k-1);
+                else
+                    value(:,k) = repmat(SOLUS_LD_analog(),1,4);
+                end
+            end
+        end
+        
+        function value = get.analogOptode(obj)
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    if ~obj.avoid_read_HW
+                        obj.s.ReadDiagOptode(k-1);
+                    end
+                    [~,value(k)] = obj.s.GetDiagOptode(k-1);
+                else
+                    value(k) = SOLUS_Optode_analog();
+                end
+            end
+        end
+        
+        function value = get.analogControl(obj)
+            if ~obj.avoid_read_HW
+                obj.s.ReadDiagControl();
+            end
+            value = obj.s.GetDiagControl();
         end
         
     end
