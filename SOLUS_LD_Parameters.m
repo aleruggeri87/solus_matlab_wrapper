@@ -35,7 +35,7 @@ classdef SOLUS_LD_Parameters
                     'SOLUS_LD_Parameters must be called with 0, 1 or 9 arguments');
             end
             if nargin == 1
-                obj.fromStruct(d_f__struct);                
+                obj=obj.fromStruct(d_f__struct);                
             elseif nargin == 9
                 obj.delay_f=d_f__struct;
                 obj.delay_c=d_c;

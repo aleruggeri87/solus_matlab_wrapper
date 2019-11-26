@@ -42,7 +42,7 @@ classdef SOLUS_LD_Status
                     'SOLUS_LD_Status must be called with 0 or 1 argument');
             end
             if nargin == 1
-                obj.fromInt(num);
+                obj=obj.fromInt(num);
             end
         end
         

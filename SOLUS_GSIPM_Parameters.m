@@ -33,7 +33,7 @@ classdef SOLUS_GSIPM_Parameters
                     'SOLUS_GSIPM_Parameters must be called with 0, 1 or 7 arguments');
             end
             if nargin == 1
-                obj.fromStruct(en1__struct);
+                obj=obj.fromStruct(en1__struct);
             elseif nargin == 7
                 obj.en1=en1__struct;
                 obj.en2=en2;

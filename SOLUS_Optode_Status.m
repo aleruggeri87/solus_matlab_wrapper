@@ -37,7 +37,7 @@ classdef SOLUS_Optode_Status
                     'SOLUS_Optode_Status must be called with 0 or 1 argument');
             end
             if nargin == 1
-                obj.fromInt(num);
+                obj=obj.fromInt(num);
             end
         end
         
