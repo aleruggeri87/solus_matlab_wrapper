@@ -144,7 +144,7 @@ classdef SOLUS_HL < handle
                     obj.statusLD(:,k)=LD_status;
                 else
                     value(k)=SOLUS_Optode_Status();
-                    obj.statusLD(:,k)=repmat(SOLUS_LD_Status,4);
+                    obj.statusLD(:,k)=repmat(SOLUS_LD_Status,4,1);
                 end
             end
         end
