@@ -300,9 +300,21 @@ classdef SOLUS < handle
             toc
         end
 
-        function StopSequence(obj)
-            % SOLUS_Return SOLUS_StopSequence(SOLUS_H solus)
-            err=calllib(obj.LIBALIAS, 'SOLUS_StopSequence', obj.s);
+        function StopSequence(obj, enable_dump)
+            if nargin < 2
+                enable_dump=true;
+            end
+            
+            if enable_dump
+                en_dmp=1;
+            else
+                en_dmp=0;
+            end
+            
+            % SOLUS_Return SOLUS_StopSequence(SOLUS_H solus, BOOLEAN enable_dump)
+            err=calllib(obj.LIBALIAS, 'SOLUS_StopSequence', obj.s, en_dmp);
+            SOLUS.checkError(err);
+        end
             SOLUS.checkError(err);
         end
 
