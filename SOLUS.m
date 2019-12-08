@@ -315,6 +315,10 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_StopSequence', obj.s, en_dmp);
             SOLUS.checkError(err);
         end
+        
+        function SaveEEPROM(obj, optode)
+            % SOLUS_Return SOLUS_SaveEEPROM(SOLUS_H solus, ADDRESS address)
+            err=calllib(obj.LIBALIAS, 'SOLUS_SaveEEPROM', obj.s, optode);
             SOLUS.checkError(err);
         end
 
