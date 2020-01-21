@@ -190,5 +190,75 @@ classdef SOLUS_HL < handle
             value = obj.s.GetDiagControl();
         end
         
+        %% print
+        function print_analogOptodes(obj)
+            title='Optode analog acquisitions';
+            label={'Opd', 'SPAD (V)', 'GSIPM (V)', 'LASER (V)', 'SPAD (uA)',...
+                'GSIPM (mA)', 'LASER (mA)', 'Bandg', ' GSIPM (°C)', 'PIC (°C)'};
+
+            acq=obj.analogOptode();
+            K=find(obj.s.optConnected);
+            L=length(K);
+            data=zeros(L,9);
+            col1=cell(L,1);
+            j=1;
+            for k=1:L
+                data(j,1)=acq(K(k)).gsipmSPADvoltage/1000;
+                data(j,2)=acq(K(k)).gsipmCoreVoltage/1000;
+                data(j,3)=acq(K(k)).laserVoltage/1000;
+                data(j,4)=acq(K(k)).gsipmSPADcurrent/1000*10;
+                data(j,5)=acq(K(k)).gsipmCoreCurrent/1000*100;
+                data(j,6)=acq(K(k)).laserCurrent/1000*10;
+                data(j,7)=acq(K(k)).bandgap;
+                data(j,8)=acq(K(k)).gsipmTemperature/100;
+                data(j,9)=acq(K(k)).picTemperature/100;
+                col1{j}=['  #' num2str(K(k)) ' '];
+                j=j+1;
+            end
+
+            table_ale(data,label,title,3,col1)
+        end
+        
+        function print_analogControl(obj)
+            title='Control analog acquisitions';
+            label={'IN (V)', 'SPAD (V)', 'IN (mA)', 'SPAD (uA)', '5V (V)', ' IN (W)'};
+
+            acq=obj.analogControl();
+            data=zeros(1,6);
+            data(1)=acq.inputVoltage/1000;
+            data(2)=acq.spadVoltage/1000;
+            data(3)=acq.inputCurrent/1000*100;
+            data(4)=acq.spadCurrent/1000*10;
+            data(5)=acq.p5Volt/1000;
+            data(6)=data(1)*data(3)/1000;
+
+            table_ale(data,label,title,3)
+        end
+        
+        %% plot
+        function [T,t]=plot_temperature_vs_time(obj, Tm)
+            N=Tm*10;
+            T=zeros(N,8);
+            t=zeros(N,1);
+            for k=1:1000
+                acq=obj.analogOptode;
+                t(k)=now;
+                for j=1:8
+                    if obj.s.optConnected(j)
+                        T(k,j)=acq(j).gsipmTemperature/100;
+                    else
+                        T(k,j)=Nan;
+                    end
+                end
+                plot(t(1:k)-t(1),T(1:k,:))
+                drawnow;
+                pause(0.1)
+                if t(k)-t(1) > Tm
+                    break
+                end
+            end
+            T=T(1:k,:);
+            t=t(1:k);
+        end
     end
 end
