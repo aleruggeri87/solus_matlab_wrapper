@@ -50,7 +50,7 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_SetLaserFrequency', obj.s, laser_frequency);
             SOLUS.checkError(err);
         end
-
+        
         function ReadLaserFrequency(obj)
             % SOLUS_Return SOLUS_ReadLaserFrequency(SOLUS_H solus);
             err=calllib(obj.LIBALIAS, 'SOLUS_ReadLaserFrequency', obj.s);
@@ -319,6 +319,36 @@ classdef SOLUS < handle
         function SaveEEPROM(obj, optode)
             % SOLUS_Return SOLUS_SaveEEPROM(SOLUS_H solus, ADDRESS address)
             err=calllib(obj.LIBALIAS, 'SOLUS_SaveEEPROM', obj.s, optode);
+            SOLUS.checkError(err);
+        end
+        
+        function eeprom=ReadEEPROM(obj, optode)
+            % SOLUS_Return SOLUS_ReadEEPROM(SOLUS_H solus, ADDRESS address, UINT8* data)
+            [err,~,eeprom]=calllib(obj.LIBALIAS, 'SOLUS_ReadEEPROM', obj.s, optode, zeros(1,4096,'uint8'));
+            SOLUS.checkError(err);
+        end
+        
+        function SOLUS_CompensateTemperature(obj, temperature)
+            % SOLUS_Return SOLUS_CompensateTemperature(SOLUS_H solus, float temperature)
+            err=calllib(obj.LIBALIAS, 'SOLUS_CompensateTemperature', obj.s, temperature);
+            SOLUS.checkError(err);
+        end
+        
+        function SOLUS_TrimCTMU(obj, optode, ctmu_en, ctmu_trim)
+            % SOLUS_Return SOLUS_TrimCTMU(SOLUS_H solus, ADDRESS address, BOOLEAN ctmu_en, INT16 ctmu_trim)
+            err=calllib(obj.LIBALIAS, 'SOLUS_TrimCTMU', obj.s, optode, ctmu_en, ctmu_trim);
+            SOLUS.checkError(err);
+        end
+        
+        function SOLUS_ProgramSTUSB4500(obj)
+            % SOLUS_Return SOLUS_ProgramSTUSB4500(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ProgramSTUSB4500', obj.s);
+            SOLUS.checkError(err);
+        end
+        
+        function SOLUS_TriggerBootLoader(obj, optode, path)
+            % SOLUS_Return SOLUS_TriggerBootLoader(SOLUS_H solus, ADDRESS address, char* path)
+            err=calllib(obj.LIBALIAS, 'SOLUS_TriggerBootLoader', obj.s, optode, path);
             SOLUS.checkError(err);
         end
 
