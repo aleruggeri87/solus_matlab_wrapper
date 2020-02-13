@@ -40,8 +40,11 @@ classdef SOLUS_HL < handle
     end
 
     methods
-        function obj = SOLUS_HL()
-            obj.s=SOLUS();
+        function obj = SOLUS_HL(nodata)
+            if nargin < 1
+                nodata=false;
+            end
+            obj.s=SOLUS(nodata);
         end
         
         function delete(obj)

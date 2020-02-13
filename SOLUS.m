@@ -35,13 +35,20 @@ classdef SOLUS < handle
     end
     
     methods
-        function obj = SOLUS()
+        function obj = SOLUS(nodata)
             SOLUS.loadLib();
             
             obj.s = libpointer('s_SOLUS_HPtr');
             obj.optConnected=zeros(8,1);
             
+            if nargin < 1
+                nodata = false;
+            end
+            if ~nodata
                 [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr', obj.s, obj.optConnected);
+            else
+                [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr_nodata', obj.s, obj.optConnected);
+            end
             SOLUS.checkError(err);
         end
         
