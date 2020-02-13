@@ -40,8 +40,8 @@ classdef SOLUS < handle
             
             obj.s = libpointer('s_SOLUS_HPtr');
             obj.optConnected=zeros(8,1);
-
-            [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr', obj.s, obj.optConnected);
+            
+                [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr', obj.s, obj.optConnected);
             SOLUS.checkError(err);
         end
         
@@ -279,6 +279,12 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_StartSequence', obj.s, 1);
             SOLUS.checkError(err);
         end
+        
+        function nLines = QueryNLinesAvailable(obj)
+            % SOLUS_Return SOLUS_QueryNLinesAvailable(SOLUS_H solus, UINT16 *NLines)
+            [err, ~, nLines]=calllib(obj.LIBALIAS, 'SOLUS_QueryNLinesAvailable', obj.s, 0);
+            SOLUS.checkError(err);
+        end
 
         function H = GetMeasurement(obj,NLines)
             dataPtr = libpointer('FramePtrPtr');
@@ -291,13 +297,14 @@ classdef SOLUS < handle
 
             H(NLines,8)=dataPtr.Value; % preallocation (remember to overwrite/clear this)
             K=find(obj.optConnected);
+            L=length(K);
             for j=1:NLines
-                for k=K
-                    H(j,k)=dataPtr.Value;
+                for k=1:L
+                    H(j,K(k))=dataPtr.Value;
                     dataPtr=dataPtr+1;
                 end
             end
-            toc
+            
         end
 
         function StopSequence(obj, enable_dump)
@@ -351,7 +358,7 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_TriggerBootLoader', obj.s, optode, path);
             SOLUS.checkError(err);
         end
-
+        
         function delete(obj)
             % SOLUS_Return SOLUS_Destr(SOLUS_H SOLUS);
             err=calllib(obj.LIBALIAS, 'SOLUS_Destr', obj.s);
