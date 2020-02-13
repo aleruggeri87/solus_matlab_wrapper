@@ -239,10 +239,10 @@ classdef SOLUS_HL < handle
         function [T,t]=plot_temperature_vs_time(obj, Tm)
             N=Tm*10;
             T=zeros(N,8);
-            t=zeros(N,1);
-            for k=1:1000
+            t=zeros(N,6);
+            for k=1:N
                 acq=obj.analogOptode;
-                t(k)=now;
+                t(k,:)=clock;
                 for j=1:8
                     if obj.s.optConnected(j)
                         T(k,j)=acq(j).gsipmTemperature/100;
@@ -250,10 +250,10 @@ classdef SOLUS_HL < handle
                         T(k,j)=Nan;
                     end
                 end
-                plot(t(1:k)-t(1),T(1:k,:))
+                plot(etime(t(1:k,:),repmat(t(1,:),k,1)) ,T(1:k,:))
                 drawnow;
                 pause(0.1)
-                if t(k)-t(1) > Tm
+                if etime(t(k,:),t(1,:)) > Tm
                     break
                 end
             end
