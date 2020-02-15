@@ -193,6 +193,26 @@ classdef SOLUS_HL < handle
             value = obj.s.GetDiagControl();
         end
         
+        function bootloader(obj, address, hex_path)
+            obj.s.BootLoaderStart(address, hex_path);
+            pct=0;
+            t1=clock;
+            while pct~=1
+                try
+                    pct50=round(pct*50);
+                    str=[repmat('#',1,pct50) repmat(' ',1,50-pct50)];
+                    fprintf('Programming... [%s]\n', str);
+                    pct=obj.s.BootLoaderAct(address);
+                    fprintf(repmat(char(8),1,50+18));
+                catch err
+                    obj.s.BootLoaderStop();
+                    rethrow(err);
+                end
+            end
+            fprintf('Programming done, elapsed time: %.2f\n\n', etime(clock, t1));
+            obj.s.BootLoaderStop();
+        end
+        
         function data=getMeas(obj, nLines, progress_on)
             if nargin < 3
                 progress_on = false;
