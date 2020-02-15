@@ -217,7 +217,7 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function SOLUS_SetControlParams(obj, ctrl_param)
+        function SetControlParams(obj, ctrl_param)
             if ~isa(ctrl_param, 'SOLUS_Control_Parameters')
                 SOLUS.printError('badType','ctrl_param must be type SOLUS_Control_Parameters');
             end
@@ -342,27 +342,39 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function SOLUS_CompensateTemperature(obj, temperature)
+        function CompensateTemperature(obj, temperature)
             % SOLUS_Return SOLUS_CompensateTemperature(SOLUS_H solus, float temperature)
             err=calllib(obj.LIBALIAS, 'SOLUS_CompensateTemperature', obj.s, temperature);
             SOLUS.checkError(err);
         end
         
-        function SOLUS_TrimCTMU(obj, optode, ctmu_en, ctmu_trim)
+        function TrimCTMU(obj, optode, ctmu_en, ctmu_trim)
             % SOLUS_Return SOLUS_TrimCTMU(SOLUS_H solus, ADDRESS address, BOOLEAN ctmu_en, INT16 ctmu_trim)
             err=calllib(obj.LIBALIAS, 'SOLUS_TrimCTMU', obj.s, optode, ctmu_en, ctmu_trim);
             SOLUS.checkError(err);
         end
         
-        function SOLUS_ProgramSTUSB4500(obj)
+        function ProgramSTUSB4500(obj)
             % SOLUS_Return SOLUS_ProgramSTUSB4500(SOLUS_H solus)
             err=calllib(obj.LIBALIAS, 'SOLUS_ProgramSTUSB4500', obj.s);
             SOLUS.checkError(err);
         end
         
-        function SOLUS_TriggerBootLoader(obj, optode, path)
-            % SOLUS_Return SOLUS_TriggerBootLoader(SOLUS_H solus, ADDRESS address, char* path)
-            err=calllib(obj.LIBALIAS, 'SOLUS_TriggerBootLoader', obj.s, optode, path);
+        function BootLoaderStart(obj, optode, path)
+            % SOLUS_Return SOLUS_BootLoaderStart(SOLUS_H solus, ADDRESS address, char* path)
+            err=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderStart', obj.s, optode, path);
+            SOLUS.checkError(err);
+        end
+        
+        function progress=BootLoaderAct(obj, optode)
+            % SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, ADDRESS address, float *programming_pct)
+            [err,~,progress]=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderAct', obj.s, optode, 0);
+            SOLUS.checkError(err);
+        end
+        
+        function BootLoaderStop(obj)
+            % SOLUS_Return SOLUS_BootLoaderStop(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderStop', obj.s);
             SOLUS.checkError(err);
         end
         
