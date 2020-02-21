@@ -316,7 +316,7 @@ classdef SOLUS < handle
 
         function StopSequence(obj, enable_dump)
             if nargin < 2
-                enable_dump=true;
+                enable_dump=false;
             end
             
             if enable_dump
