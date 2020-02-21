@@ -66,7 +66,7 @@ classdef SOLUS_Optode_Status
                 obj.LD_overcurrent=bitget(num,11);
                 obj.LD_overtemp=bitget(num,12);
                 obj.LD_others=bitget(num,13);
-                obj.pic_temperature_range=uint16(sum(bitget(num,14:16).*uint16([1 2])));
+                obj.pic_temperature_range=uint16(sum(bitget(num,14:15).*uint16([1 2])));
                 obj.interlock=bitget(num,16);
             else
                 error('SOLUS_Optode_Status:wrongArgs',...
