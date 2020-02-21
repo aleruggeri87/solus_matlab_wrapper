@@ -110,7 +110,7 @@ classdef SOLUS < handle
 
         function seq_str_rd = GetSequence(obj)
             seq_b_rd=zeros(1,obj.N_ROWS*45,'uint8');
-            seqPtr_rd = libpointer('voidPtr',seq_b_rd);
+            seqPtr_rd = libpointer('uint8Ptr',seq_b_rd);
 
             % SOLUS_Return SOLUS_GetSequence(SOLUS_H solus, Sequence* sequence)
             err=calllib(obj.LIBALIAS, 'SOLUS_GetSequence', obj.s, seqPtr_rd);
@@ -445,7 +445,7 @@ classdef SOLUS < handle
         function adjustProtofile(filename)
             repl{3}={'fcns.name{fcnNum}=''SOLUS_GetDiagOptode'';', 's_LD_AnalogPtr', 'uint16Ptr'};
             repl{2}={'fcns.name{fcnNum}=''SOLUS_SetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
-            repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
+            repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'uint8Ptr'};
             fid=fopen(filename);
             str=fread(fid,inf,'*char')';
             fclose(fid);
