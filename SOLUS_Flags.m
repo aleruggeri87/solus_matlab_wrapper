@@ -14,14 +14,14 @@ classdef SOLUS_Flags
     %   Rev 1.0-26/11/2019: first issue
     
     properties
-        FORCE_LASER_OFF = false;
-        AUTOCAL = false;
-        OVERRIDE_MAP = false;
-        GSIPM_GATE_OFF_AFTER_MEAS = false;
-        LASER_OFF_AFTER_MEAS = false;
-        TURNOFF_UNUSED_LD = false;
-        TRIM_METHOD = false;
-        DISABLE_INTERLOCK = false;
+        FORCE_LASER_OFF@logical = false;
+        AUTOCAL@logical = false;
+        OVERRIDE_MAP@logical = false;
+        GSIPM_GATE_OFF_AFTER_MEAS@logical = false;
+        LASER_OFF_AFTER_MEAS@logical = false;
+        TURNOFF_UNUSED_LD@logical = false;
+        TRIM_METHOD@logical = false;
+        DISABLE_INTERLOCK@logical = false;
     end
     
     methods
