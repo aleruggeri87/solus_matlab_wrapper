@@ -391,7 +391,7 @@ classdef SOLUS < handle
             yes = libisloaded(SOLUS.LIBALIAS);
         end
         
-        function loadLib()
+        function mex=loadLib()
             errid = 'SOLUS_SDK_loadlib:';
             headerfname = 'SOLUS_SDK.h';
             dll64fname = 'SOLUS_SDK.dll';
@@ -404,7 +404,7 @@ classdef SOLUS < handle
                         if exist('SOLUS_header.m', 'file')
                             loadlibrary(dll64fname, @SOLUS_header, 'alias', SOLUS.LIBALIAS);
                         else
-                            loadlibrary(dll64fname, headerfname, ...
+                            [~,mex]=loadlibrary(dll64fname, headerfname, ...
                                 'alias', SOLUS.LIBALIAS, ...
                                 'mfilename', 'SOLUS_header.m');
                             SOLUS.unloadLib();
