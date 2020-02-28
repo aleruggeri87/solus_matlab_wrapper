@@ -139,9 +139,15 @@ classdef SOLUS < handle
             
             LD_str=LD_params.toStruct();
             GSIPM_str=GSIPM_params.toStruct();
-
-            % SOLUS_Return SOLUS_SetOptodeParams(SOLUS_H solus, ADDRESS optode, LD_parameters LD_parameters, GSIPM_parameters GSIPM_parameters)
-            err=calllib(obj.LIBALIAS, 'SOLUS_SetOptodeParams', obj.s, optode_addr, LD_str, GSIPM_str);
+            if ~strcmp(version('-release'),'2012a')
+                % SOLUS_Return SOLUS_SetOptodeParams(SOLUS_H solus, ADDRESS optode, LD_parameters LD_parameters, GSIPM_parameters GSIPM_parameters)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetOptodeParams', obj.s, optode_addr, LD_str, GSIPM_str);
+            else
+                pLD_str=libpointer('LD_parametersPtr',LD_str);
+                pGSIPM_str=libpointer('GSIPM_parametersPtr',GSIPM_str);
+                % SOLUS_Return SOLUS_SetOptodeParams_byRef(SOLUS_H solus, ADDRESS optode, LD_parameters *LD_parameters, GSIPM_parameters *GSIPM_parameters)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetOptodeParams_byRef', obj.s, optode_addr, pLD_str, pGSIPM_str);
+            end
             SOLUS.checkError(err);
         end
 

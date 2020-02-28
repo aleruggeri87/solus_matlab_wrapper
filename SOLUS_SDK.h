@@ -191,11 +191,12 @@ extern "C" {
 		UINT8 SYNCDC : 4;				/**<Sync delay coarse.*/
 		UINT8 ESYNC : 1;				/**<Enable sync output.*/
 		UINT8 ETTLO : 1;				/**<Enable TTL output mode.*/
-		UINT8 : 2;						/**<Zero bits.*/
+		UINT8 INVSYNC : 1;				/**<Sync out inversion - ONLY FOR GEN3*/
+		UINT8 : 1;						/**<Zero bit.*/
 		// ADC/DAC
 		UINT8 SELAD : 3;				/**<Select ADC/DAC source.*/
 		UINT8 ENADC : 1;				/**<Enable AD/DA converter.*/
-		UINT8 : 2;						/**<Zero bits.*/
+		UINT8 DISABLE : 2;				/**<Low power mode - ONLY FOR GEN3.*/
 		UINT8 ILIM_LSB : 2;				/**<Current limit LSB.*/
 		UINT8 ILIM_MSB : 8;				/**<Current limit MSB.*/
 		// iCHAUS Internal Configuration
@@ -498,6 +499,8 @@ extern "C" {
 	\return COMM_TIMEOUT Communication timeout.
 	*/
 	DllSDKExport SOLUS_Return SOLUS_SetOptodeParams(SOLUS_H solus, ADDRESS optode, LD_parameters LD_Parameters, GSIPM_parameters GSIPM_parameters);
+
+	DllSDKExport SOLUS_Return SOLUS_SetOptodeParams_byRef(SOLUS_H solus, ADDRESS optode, LD_parameters* LD_parameters, GSIPM_parameters* GSIPM_parameters);
 
 	/**Set calibration map.
 	Sets the calibration map for a specific optode. The calibration is an array of N_PIXEL UINT16 values, containing the desired pixel activation order to be used by the internal calibration procedure.
