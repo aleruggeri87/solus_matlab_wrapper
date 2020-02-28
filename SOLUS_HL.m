@@ -297,7 +297,7 @@ classdef SOLUS_HL < handle
                     if obj.s.optConnected(j)
                         T(k,j)=acq(j).gsipmTemperature/100;
                     else
-                        T(k,j)=Nan;
+                        T(k,j)=NaN;
                     end
                 end
                 plot(etime(t(1:k,:),repmat(t(1,:),k,1)) ,T(1:k,:))
@@ -309,6 +309,59 @@ classdef SOLUS_HL < handle
             end
             T=T(1:k,:);
             t=t(1:k);
+        end
+        
+    end
+    
+    methods (Static)
+        function LD_params=LD_params_fromFile(filename)
+            r=2;
+            P=zeros(7,8);
+            for j=1:8
+                for k=1:8
+                    P(:,k)=dlmread(filename,'\t',[r,1,r+6,1]); % 1+(r:r+6);
+                    r=r+8;
+                end
+                r=r+3;
+                LD_params(j)=SOLUS_LD_Parameters(P(1,:), P(2,:), P(3,:), P(4,:), P(5,:), P(6,:), P(7,2:2:end), 0, 0); %#ok<AGROW>
+            end
+        end
+        
+        function GSIPM_params=GSIPM_params_fromFile(filename)
+            r=1;
+            for k=1:8
+                P=dlmread(filename,'\t',[r,1,r+6,1]); % 1+(r:r+6);
+                GSIPM_params(k)=SOLUS_GSIPM_Parameters(P(1), P(2), P(3), P(4), P(5), P(6), P(7)); %#ok<AGROW>
+                r=r+8;
+            end
+        end
+        
+        function calibMap=calibMap_fromFile(filename)
+            calibMap=zeros(1728,8);
+            r=1;
+            for k=1:8
+                calibMap(:,k)=dlmread(filename,'\t',[r,1,r+1727,1]);
+                r=r+1729;
+            end 
+        end
+        
+        function sequence=sequence_fromFile(filename)
+            A=dlmread(filename,'\t',1,0);
+            if size(A,1)==384
+                if size(A,2)==28 % new TRS file format
+                    for k=384:-1:1
+                        sequence(k)=SOLUS_SequenceLine(A(k,1),A(k,2:3:23), A(k,3:3:24), A(k,4:3:25), A(k,26));
+                    end
+                elseif size(A,2)==5 % old TRS file format
+                    for k=384:-1:1
+                        sequence(k)=SOLUS_SequenceLine(A(k,1),repmat(A(k,2),1,8), repmat(A(k,3),1,8), repmat(A(k,4),1,8), A(k,5));
+                    end
+                else
+                    error('SOLUS_HL.sequence_fromFile, unexpected file size: wrong number of columns.');
+                end 
+            else
+                error('SOLUS_HL.sequence_fromFile, unexpected file size: wrong number of lines.');
+            end
         end
     end
 end
