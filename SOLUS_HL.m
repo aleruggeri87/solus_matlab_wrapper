@@ -217,17 +217,17 @@ classdef SOLUS_HL < handle
             if nargin < 3
                 progress_on = false;
             end
-            SH.solus.StartSequence();
+            obj.s.StartSequence();
             data=[];
             tot_nl=0;
             if progress_on
                 consoleProgress(0,'Sequence dnwl');
             end
             while tot_nl<nLines
-                nl=SH.solus.QueryNLinesAvailable();
+                nl=obj.s.QueryNLinesAvailable();
                 if nl~=0
-                    data_t=SH.solus.GetMeasurement(nl);
-                    data=[data; data_t];
+                    data_t=obj.s.GetMeasurement(nl);
+                    data=[data; data_t]; %#ok<AGROW>
                     tot_nl=tot_nl+nl;
                     if progress_on
                         consoleProgress(double(tot_nl)/nLines);
