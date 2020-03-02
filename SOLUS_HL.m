@@ -33,6 +33,7 @@ classdef SOLUS_HL < handle
         analogLD;
         analogOptode;
         analogControl;
+        analogOptodeUnits;
     end
     
     properties (Access = private)
@@ -203,6 +204,21 @@ classdef SOLUS_HL < handle
                 else
                     value(k) = SOLUS_Optode_analog();
                 end
+            end
+        end
+        
+        function value = get.analogOptodeUnits(obj)
+            aO=obj.analogOptode;
+            for k=8:-1:1
+                value(k).gsipmSPADvoltage=aO(k).gsipmSPADvoltage/1000;
+                value(k).gsipmCoreVoltage=aO(k).gsipmCoreVoltage/1000;
+                value(k).laserVoltage=aO(k).laserVoltage/1000;
+                value(k).gsipmSPADcurrent=aO(k).gsipmSPADcurrent/1000*10;
+                value(k).gsipmCoreCurrent=aO(k).gsipmCoreCurrent/1000*100;
+                value(k).laserCurrent=aO(k).laserCurrent/1000*10;
+                value(k).bandgap=aO(k).bandgap;
+                value(k).gsipmTemperature=aO(k).gsipmTemperature/100;
+                value(k).picTemperature=aO(k).picTemperature/100;
             end
         end
         
