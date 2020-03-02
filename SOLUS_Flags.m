@@ -14,14 +14,14 @@ classdef SOLUS_Flags
     %   Rev 1.0-26/11/2019: first issue
     
     properties
-        FLAG_FORCE_LASER_OFF = false;
-        FLAG_AUTOCAL = false;
-        FLAG_OVERRIDE_MAP = false;
-        FLAG_GSIPM_GATE_OFF_AFTER_MEAS = false;
-        FLAG_LASER_OFF_AFTER_MEAS = false;
-        FLAG_TURNOFF_UNUSED_LD = false;
-        FLAG_TRIM_METHOD = false;
-        FLAG_DISABLE_INTERLOCK = false;
+        FORCE_LASER_OFF@logical = false;
+        AUTOCAL@logical = false;
+        OVERRIDE_MAP@logical = false;
+        GSIPM_GATE_OFF_AFTER_MEAS@logical = false;
+        LASER_OFF_AFTER_MEAS@logical = false;
+        TURNOFF_UNUSED_LD@logical = false;
+        TRIM_METHOD@logical = false;
+        DISABLE_INTERLOCK@logical = false;
     end
     
     methods
@@ -38,21 +38,21 @@ classdef SOLUS_Flags
         
         % convert class to int
         function int = toInt(obj)
-            int=uint16(obj.FLAG_FORCE_LASER_OFF+obj.FLAG_AUTOCAL*2+obj.FLAG_OVERRIDE_MAP*4+...
-                obj.FLAG_GSIPM_GATE_OFF_AFTER_MEAS*8+obj.FLAG_LASER_OFF_AFTER_MEAS*16+...
-                obj.FLAG_TURNOFF_UNUSED_LD*32+obj.FLAG_TRIM_METHOD*64+obj.FLAG_DISABLE_INTERLOCK*256);
+            int=uint16(obj.FORCE_LASER_OFF+obj.AUTOCAL*2+obj.OVERRIDE_MAP*4+...
+                obj.GSIPM_GATE_OFF_AFTER_MEAS*8+obj.LASER_OFF_AFTER_MEAS*16+...
+                obj.TURNOFF_UNUSED_LD*32+obj.TRIM_METHOD*64+obj.DISABLE_INTERLOCK*256);
         end
         %% convert from int
         function obj = fromInt(obj, num)
             if isa(num,'uint16')
-                obj.FLAG_FORCE_LASER_OFF=bitget(num,1);
-                obj.FLAG_AUTOCAL=bitget(num,2);
-                obj.FLAG_OVERRIDE_MAP=bitget(num,3);
-                obj.FLAG_GSIPM_GATE_OFF_AFTER_MEAS=bitget(num,4);
-                obj.FLAG_LASER_OFF_AFTER_MEAS=bitget(num,5);
-                obj.FLAG_TURNOFF_UNUSED_LD=bitget(num,6);
-                obj.FLAG_TRIM_METHOD=uint16(sum(bitget(num,7:8).*uint16([1 2])));
-                obj.FLAG_DISABLE_INTERLOCK=bitget(num,9);
+                obj.FORCE_LASER_OFF=bitget(num,1);
+                obj.AUTOCAL=bitget(num,2);
+                obj.OVERRIDE_MAP=bitget(num,3);
+                obj.GSIPM_GATE_OFF_AFTER_MEAS=bitget(num,4);
+                obj.LASER_OFF_AFTER_MEAS=bitget(num,5);
+                obj.TURNOFF_UNUSED_LD=bitget(num,6);
+                obj.TRIM_METHOD=uint16(sum(bitget(num,7:8).*uint16([1 2])));
+                obj.DISABLE_INTERLOCK=bitget(num,9);
             else
                 error('SOLUS_Flags:wrongArgs',...
                     'Input argument of SOLUS_Flags must be a uint16');

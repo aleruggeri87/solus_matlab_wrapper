@@ -18,7 +18,7 @@ classdef SOLUS_Control_Status
         q_fromPC_data_is_full=false;
         Vpol_error_run=false;
         Ispad_limit=false;
-        Iinput_limit=false;
+        Pinput_limit=false;
         Vinput_limit=false;
         P5V_error=false;
         Vpol_error_oth=false;
@@ -43,7 +43,7 @@ classdef SOLUS_Control_Status
         % convert class to int
         function int = toInt(obj)
             int=uint16(obj.q_fromPC_is_full+obj.q_fromPC_data_is_full*2+obj.Vpol_error_run*4+obj.Ispad_limit*8+...
-                obj.Iinput_limit*16+obj.Vinput_limit*32+obj.P5V_error*64+obj.Vpol_error_oth*128+...
+                obj.Pinput_limit*16+obj.Vinput_limit*32+obj.P5V_error*64+obj.Vpol_error_oth*128+...
                 obj.meas_state*256+obj.stusb_bad_cfg*4096+obj.usbC_pow*8192+obj.interlock_active*32768);
         end
         %% convert from int
@@ -53,7 +53,7 @@ classdef SOLUS_Control_Status
                 obj.q_fromPC_data_is_full=bitget(num,2);
                 obj.Vpol_error_run=bitget(num,3);
                 obj.Ispad_limit=bitget(num,4);
-                obj.Iinput_limit=bitget(num,5);
+                obj.Pinput_limit=bitget(num,5);
                 obj.Vinput_limit=bitget(num,6);
                 obj.P5V_error=bitget(num,7);
                 obj.Vpol_error_oth=bitget(num,8);

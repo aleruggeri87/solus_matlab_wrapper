@@ -35,13 +35,20 @@ classdef SOLUS < handle
     end
     
     methods
-        function obj = SOLUS()
+        function obj = SOLUS(nodata)
             SOLUS.loadLib();
             
             obj.s = libpointer('s_SOLUS_HPtr');
             obj.optConnected=zeros(8,1);
-
-            [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr', obj.s, obj.optConnected);
+            
+            if nargin < 1
+                nodata = false;
+            end
+            if ~nodata
+                [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr', obj.s, obj.optConnected);
+            else
+                [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr_nodata', obj.s, obj.optConnected);
+            end
             SOLUS.checkError(err);
         end
         
@@ -50,7 +57,7 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_SetLaserFrequency', obj.s, laser_frequency);
             SOLUS.checkError(err);
         end
-
+        
         function ReadLaserFrequency(obj)
             % SOLUS_Return SOLUS_ReadLaserFrequency(SOLUS_H solus);
             err=calllib(obj.LIBALIAS, 'SOLUS_ReadLaserFrequency', obj.s);
@@ -103,7 +110,7 @@ classdef SOLUS < handle
 
         function seq_str_rd = GetSequence(obj)
             seq_b_rd=zeros(1,obj.N_ROWS*45,'uint8');
-            seqPtr_rd = libpointer('voidPtr',seq_b_rd);
+            seqPtr_rd = libpointer('uint8Ptr',seq_b_rd);
 
             % SOLUS_Return SOLUS_GetSequence(SOLUS_H solus, Sequence* sequence)
             err=calllib(obj.LIBALIAS, 'SOLUS_GetSequence', obj.s, seqPtr_rd);
@@ -132,9 +139,15 @@ classdef SOLUS < handle
             
             LD_str=LD_params.toStruct();
             GSIPM_str=GSIPM_params.toStruct();
-
-            % SOLUS_Return SOLUS_SetOptodeParams(SOLUS_H solus, ADDRESS optode, LD_parameters LD_parameters, GSIPM_parameters GSIPM_parameters)
-            err=calllib(obj.LIBALIAS, 'SOLUS_SetOptodeParams', obj.s, optode_addr, LD_str, GSIPM_str);
+            if ~strcmp(version('-release'),'2012a')
+                % SOLUS_Return SOLUS_SetOptodeParams(SOLUS_H solus, ADDRESS optode, LD_parameters LD_parameters, GSIPM_parameters GSIPM_parameters)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetOptodeParams', obj.s, optode_addr, LD_str, GSIPM_str);
+            else
+                pLD_str=libpointer('LD_parametersPtr',LD_str);
+                pGSIPM_str=libpointer('GSIPM_parametersPtr',GSIPM_str);
+                % SOLUS_Return SOLUS_SetOptodeParams_byRef(SOLUS_H solus, ADDRESS optode, LD_parameters *LD_parameters, GSIPM_parameters *GSIPM_parameters)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetOptodeParams_byRef', obj.s, optode_addr, pLD_str, pGSIPM_str);
+            end
             SOLUS.checkError(err);
         end
 
@@ -210,7 +223,7 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function SOLUS_SetControlParams(obj, ctrl_param)
+        function SetControlParams(obj, ctrl_param)
             if ~isa(ctrl_param, 'SOLUS_Control_Parameters')
                 SOLUS.printError('badType','ctrl_param must be type SOLUS_Control_Parameters');
             end
@@ -279,6 +292,12 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_StartSequence', obj.s, 1);
             SOLUS.checkError(err);
         end
+        
+        function nLines = QueryNLinesAvailable(obj)
+            % SOLUS_Return SOLUS_QueryNLinesAvailable(SOLUS_H solus, UINT16 *NLines)
+            [err, ~, nLines]=calllib(obj.LIBALIAS, 'SOLUS_QueryNLinesAvailable', obj.s, 0);
+            SOLUS.checkError(err);
+        end
 
         function H = GetMeasurement(obj,NLines)
             dataPtr = libpointer('FramePtrPtr');
@@ -291,21 +310,80 @@ classdef SOLUS < handle
 
             H(NLines,8)=dataPtr.Value; % preallocation (remember to overwrite/clear this)
             K=find(obj.optConnected);
+            L=length(K);
             for j=1:NLines
-                for k=K
-                    H(j,k)=dataPtr.Value;
+                for k=1:L
+                    H(j,K(k))=dataPtr.Value;
                     dataPtr=dataPtr+1;
                 end
             end
-            toc
+            
         end
 
-        function StopSequence(obj)
-            % SOLUS_Return SOLUS_StopSequence(SOLUS_H solus)
-            err=calllib(obj.LIBALIAS, 'SOLUS_StopSequence', obj.s);
+        function StopSequence(obj, enable_dump)
+            if nargin < 2
+                enable_dump=false;
+            end
+            
+            if enable_dump
+                en_dmp=1;
+            else
+                en_dmp=0;
+            end
+            
+            % SOLUS_Return SOLUS_StopSequence(SOLUS_H solus, BOOLEAN enable_dump)
+            err=calllib(obj.LIBALIAS, 'SOLUS_StopSequence', obj.s, en_dmp);
             SOLUS.checkError(err);
         end
-
+        
+        function SaveEEPROM(obj, optode)
+            % SOLUS_Return SOLUS_SaveEEPROM(SOLUS_H solus, ADDRESS address)
+            err=calllib(obj.LIBALIAS, 'SOLUS_SaveEEPROM', obj.s, optode);
+            SOLUS.checkError(err);
+        end
+        
+        function eeprom=ReadEEPROM(obj, optode)
+            % SOLUS_Return SOLUS_ReadEEPROM(SOLUS_H solus, ADDRESS address, UINT8* data)
+            [err,~,eeprom]=calllib(obj.LIBALIAS, 'SOLUS_ReadEEPROM', obj.s, optode, zeros(1,4096,'uint8'));
+            SOLUS.checkError(err);
+        end
+        
+        function CompensateTemperature(obj, temperature)
+            % SOLUS_Return SOLUS_CompensateTemperature(SOLUS_H solus, float temperature)
+            err=calllib(obj.LIBALIAS, 'SOLUS_CompensateTemperature', obj.s, temperature);
+            SOLUS.checkError(err);
+        end
+        
+        function TrimCTMU(obj, optode, ctmu_en, ctmu_trim)
+            % SOLUS_Return SOLUS_TrimCTMU(SOLUS_H solus, ADDRESS address, BOOLEAN ctmu_en, INT16 ctmu_trim)
+            err=calllib(obj.LIBALIAS, 'SOLUS_TrimCTMU', obj.s, optode, ctmu_en, ctmu_trim);
+            SOLUS.checkError(err);
+        end
+        
+        function ProgramSTUSB4500(obj)
+            % SOLUS_Return SOLUS_ProgramSTUSB4500(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ProgramSTUSB4500', obj.s);
+            SOLUS.checkError(err);
+        end
+        
+        function BootLoaderStart(obj, optode, path)
+            % SOLUS_Return SOLUS_BootLoaderStart(SOLUS_H solus, ADDRESS address, char* path)
+            err=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderStart', obj.s, optode, path);
+            SOLUS.checkError(err);
+        end
+        
+        function progress=BootLoaderAct(obj, optode)
+            % SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, ADDRESS address, float *programming_pct)
+            [err,~,progress]=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderAct', obj.s, optode, 0);
+            SOLUS.checkError(err);
+        end
+        
+        function BootLoaderStop(obj)
+            % SOLUS_Return SOLUS_BootLoaderStop(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderStop', obj.s);
+            SOLUS.checkError(err);
+        end
+        
         function delete(obj)
             % SOLUS_Return SOLUS_Destr(SOLUS_H SOLUS);
             err=calllib(obj.LIBALIAS, 'SOLUS_Destr', obj.s);
@@ -319,7 +397,7 @@ classdef SOLUS < handle
             yes = libisloaded(SOLUS.LIBALIAS);
         end
         
-        function loadLib()
+        function mex=loadLib()
             errid = 'SOLUS_SDK_loadlib:';
             headerfname = 'SOLUS_SDK.h';
             dll64fname = 'SOLUS_SDK.dll';
@@ -332,7 +410,7 @@ classdef SOLUS < handle
                         if exist('SOLUS_header.m', 'file')
                             loadlibrary(dll64fname, @SOLUS_header, 'alias', SOLUS.LIBALIAS);
                         else
-                            loadlibrary(dll64fname, headerfname, ...
+                            [~,mex]=loadlibrary(dll64fname, headerfname, ...
                                 'alias', SOLUS.LIBALIAS, ...
                                 'mfilename', 'SOLUS_header.m');
                             SOLUS.unloadLib();
@@ -373,7 +451,7 @@ classdef SOLUS < handle
         function adjustProtofile(filename)
             repl{3}={'fcns.name{fcnNum}=''SOLUS_GetDiagOptode'';', 's_LD_AnalogPtr', 'uint16Ptr'};
             repl{2}={'fcns.name{fcnNum}=''SOLUS_SetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
-            repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
+            repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'uint8Ptr'};
             fid=fopen(filename);
             str=fread(fid,inf,'*char')';
             fclose(fid);

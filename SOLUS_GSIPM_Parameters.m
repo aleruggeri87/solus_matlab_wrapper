@@ -45,6 +45,23 @@ classdef SOLUS_GSIPM_Parameters
             end
         end
         
+        function ok=eq(obj1, obj2)
+            ok=true;
+            if size(obj1)==size(obj2)
+                for k=1:numel(obj1)
+                    ok=ok && obj1(k).en1==obj2(k).en1;
+                    ok=ok && obj1(k).en2==obj2(k).en2;
+                    ok=ok && obj1(k).en3==obj2(k).en3;
+                    ok=ok && obj1(k).en4==obj2(k).en4;
+                    ok=ok && obj1(k).stop==obj2(k).stop;
+                    ok=ok && obj1(k).gate_close==obj2(k).gate_close;
+                    ok=ok && obj1(k).gate_open==obj2(k).gate_open;
+                end
+            else
+                ok=false;
+            end
+        end
+        
         % convert class to struct
         function LD_str = toStruct(obj)
             LD_str=struct('EN_QUADRANT_1', obj.en1, 'EN_QUADRANT_2', obj.en2,...

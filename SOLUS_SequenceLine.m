@@ -41,6 +41,21 @@ classdef SOLUS_SequenceLine
             end
         end
         
+        function ok=eq(obj1, obj2)
+            ok=true;
+            if size(obj1)==size(obj2)
+                for k=1:numel(obj1)
+                    ok=ok && obj1(k).meas_time==obj2(k).meas_time;
+                    ok=ok && all(obj1(k).attenuation==obj2(k).attenuation);
+                    ok=ok && all(obj1(k).gate_delay_c==obj2(k).gate_delay_c);
+                    ok=ok && all(obj1(k).gate_delay_f==obj2(k).gate_delay_f);
+                    ok=ok && obj1(k).laser_num==obj2(k).laser_num;
+                end
+            else
+                ok=false;
+            end
+        end
+        
         % convert class to struct
         function LD_str = toStruct(obj)
             LD_str=struct('meas_time', obj.meas_time, 'attenuation', obj.attenuation,...

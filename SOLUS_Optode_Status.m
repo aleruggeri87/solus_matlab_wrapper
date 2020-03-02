@@ -27,6 +27,7 @@ classdef SOLUS_Optode_Status
         LD_overtemp=false;
         LD_others=false;
         pic_temperature_range=0;
+        interlock=false;
     end
     
     methods
@@ -47,7 +48,8 @@ classdef SOLUS_Optode_Status
                 obj.measurement_ready_to_read*4+obj.gspim_core_current_range*8+...
                 obj.LD_conf_bad*32+obj.cmd_queue_full*64+obj.gsipm_passthrough_err*128+...
                 obj.i2c_error*256+obj.LD_pll_lock_error*512+obj.LD_overcurrent*1024+...
-                obj.LD_overtemp*2048+obj.LD_others*4096+obj.pic_temperature_range*8192;
+                obj.LD_overtemp*2048+obj.LD_others*4096+obj.pic_temperature_range*8192+...
+                obj.interlock*32768;
         end
         %% convert from int
         function obj = fromInt(obj, num)
@@ -64,7 +66,8 @@ classdef SOLUS_Optode_Status
                 obj.LD_overcurrent=bitget(num,11);
                 obj.LD_overtemp=bitget(num,12);
                 obj.LD_others=bitget(num,13);
-                obj.pic_temperature_range=uint16(sum(bitget(num,14:16).*uint16([1 2 3])));
+                obj.pic_temperature_range=uint16(sum(bitget(num,14:15).*uint16([1 2])));
+                obj.interlock=bitget(num,16);
             else
                 error('SOLUS_Optode_Status:wrongArgs',...
                     'Input argument of SOLUS_Optode_Status must be a uint16');

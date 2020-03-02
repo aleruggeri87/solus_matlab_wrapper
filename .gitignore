@@ -1,2 +1,4 @@
 /dump
 *.asv
+SOLUS_header.m*
+*thunk_pcwin64*

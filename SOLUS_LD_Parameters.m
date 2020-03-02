@@ -49,6 +49,25 @@ classdef SOLUS_LD_Parameters
             end
         end
         
+        function ok=eq(obj1, obj2)
+            ok=true;
+            if size(obj1)==size(obj2)
+                for k=1:numel(obj1)
+                    ok=ok && all(obj1(k).delay_f==obj2(k).delay_f);
+                    ok=ok && all(obj1(k).delay_c==obj2(k).delay_c);
+                    ok=ok && all(obj1(k).width_f==obj2(k).width_f);
+                    ok=ok && all(obj1(k).width_c==obj2(k).width_c);
+                    ok=ok && all(obj1(k).current_f==obj2(k).current_f);
+                    ok=ok && all(obj1(k).current_c==obj2(k).current_c);
+                    ok=ok && all(obj1(k).citr==obj2(k).citr);
+                    ok=ok && obj1(k).sync_f==obj2(k).sync_f;
+                    ok=ok && obj1(k).sync_c==obj2(k).sync_c;
+                end
+            else
+                ok=false;
+            end
+        end
+        
         % convert class to struct
         function LD_str = toStruct(obj)
             LD_str=struct('DELAY_F', obj.delay_f, 'DELAY_C', obj.delay_c,...

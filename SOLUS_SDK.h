@@ -191,11 +191,12 @@ extern "C" {
 		UINT8 SYNCDC : 4;				/**<Sync delay coarse.*/
 		UINT8 ESYNC : 1;				/**<Enable sync output.*/
 		UINT8 ETTLO : 1;				/**<Enable TTL output mode.*/
-		UINT8 : 2;						/**<Zero bits.*/
+		UINT8 INVSYNC : 1;				/**<Sync out inversion - ONLY FOR GEN3*/
+		UINT8 : 1;						/**<Zero bit.*/
 		// ADC/DAC
 		UINT8 SELAD : 3;				/**<Select ADC/DAC source.*/
 		UINT8 ENADC : 1;				/**<Enable AD/DA converter.*/
-		UINT8 : 2;						/**<Zero bits.*/
+		UINT8 DISABLE : 2;				/**<Low power mode - ONLY FOR GEN3.*/
 		UINT8 ILIM_LSB : 2;				/**<Current limit LSB.*/
 		UINT8 ILIM_MSB : 8;				/**<Current limit MSB.*/
 		// iCHAUS Internal Configuration
@@ -242,7 +243,7 @@ extern "C" {
 		UINT8 CITR[4];			/**<Current boost setting, one parameter for each driver. Driver 0 -> lasers 0 and 1, etc. Valid range 0..7.*/
 		// Sync Output
 		UINT16 SYNCD_F;			/**<Sync delay fine. Valid range 0..1023.*/
-		UINT16 SYNCD_C;			/**<Sync delay coarse. Valid range 0..15.*/
+		UINT8 SYNCD_C;			/**<Sync delay coarse. Valid range 0..15.*/
 	} LD_parameters;
 
 	/**GSIPM register structure containing all registers for the GSIPM chip. Note that only few on them needs to be changed during normal use.
@@ -498,6 +499,8 @@ extern "C" {
 	\return COMM_TIMEOUT Communication timeout.
 	*/
 	DllSDKExport SOLUS_Return SOLUS_SetOptodeParams(SOLUS_H solus, ADDRESS optode, LD_parameters LD_Parameters, GSIPM_parameters GSIPM_parameters);
+
+	DllSDKExport SOLUS_Return SOLUS_SetOptodeParams_byRef(SOLUS_H solus, ADDRESS optode, LD_parameters* LD_parameters, GSIPM_parameters* GSIPM_parameters);
 
 	/**Set calibration map.
 	Sets the calibration map for a specific optode. The calibration is an array of N_PIXEL UINT16 values, containing the desired pixel activation order to be used by the internal calibration procedure.
@@ -763,15 +766,16 @@ extern "C" {
 	DllSDKExport SOLUS_Return SOLUS_StartSequence(SOLUS_H solus, DataType type);
 
 	/**Stop measurement sequence.
-	Stops the running measurement. It must be called in any case before starting a new one.
+	Stops the running measurement. It must be called in any case before starting a new one. Optionally, status and analog acquisitions of the system can be acquired and stored in an external XML file.
 	\param solus SOLUS handle
+	\param enable_dump enable saving XML file
 	\return OK Measurement stopped successfully.
 	\return INVALID_POINTER An empty SOLUS handle was passed.
 	\return INVALID_OP Acquisition not running.
 	\return COMM_ERROR Communication error.
 	\return COMM_TIMEOUT Communication timeout.
 	*/
-	DllSDKExport SOLUS_Return SOLUS_StopSequence(SOLUS_H solus);
+	DllSDKExport SOLUS_Return SOLUS_StopSequence(SOLUS_H solus, BOOLEAN enable_dump);
 
 	/**Query Available Lines
 	Gets the number of acquired sequence lines. Call this function before \ref SOLUS_GetMeasurement() to know if all the desired lines has been measured.
