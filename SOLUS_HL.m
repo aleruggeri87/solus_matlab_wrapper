@@ -77,8 +77,11 @@ classdef SOLUS_HL < handle
             value = obj.s.GetSequence();
         end
         
-        function set.sequence(obj, value)
-            obj.s.SetSequence(value);
+        function set.sequence(obj, seq__filename)
+            if ischar(seq__filename) % load sequence from file
+                seq__filename=SOLUS_HL.sequence_fromFile(seq__filename);
+            end
+            obj.s.SetSequence(seq__filename);
         end
         
         function value = get.gsipm_params(obj)
@@ -97,6 +100,20 @@ classdef SOLUS_HL < handle
                     value(k)=obj.s.GetOptodeParams(k-1);
                 else
                     value(k)=SOLUS_LD_Parameters();
+                end
+            end
+        end
+        
+        function OptodeParams_set(obj, LD_params__filename, GSIPM_params__filename)
+            if ischar(LD_params__filename) % load from TRS file
+                LD_params__filename=SOLUS_HL.LD_params_fromFile(LD_params__filename);
+            end
+            if ischar(GSIPM_params__filename) % load from TRS file
+                GSIPM_params__filename=SOLUS_HL.GSIPM_params_fromFile(GSIPM_params__filename);
+            end
+            for k=8:-1:1
+                if obj.s.optConnected(k)
+                    obj.s.SetOptodeParams(LD_params__filename(k), GSIPM_params__filename(k), k-1);
                 end
             end
         end
@@ -126,11 +143,14 @@ classdef SOLUS_HL < handle
             end
         end
         
-        function set.calibMap(obj, value)
+        function calibMap_set(obj, map__filename, max_area)
+            if ischar(map__filename) % load map from file (TRS format)
+                map__filename=SOLUS_HL.calibMap_fromFile(map__filename);
+            end
             % remember to set max_area before!
             for k=8:-1:1
                 if obj.s.optConnected(k)
-                    obj.s.SetCalibrationMap(k-1, value(:,k), obj.max_area(k));
+                    obj.s.SetCalibrationMap(k-1, map__filename(:,k), max_area(k));
                 end
             end
         end
