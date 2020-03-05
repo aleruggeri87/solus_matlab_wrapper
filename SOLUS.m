@@ -178,7 +178,7 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_ReadDiagOptode', obj.s, optode);
             SOLUS.checkError(err);           
         end
-        
+            
         function [LD_analog, Optode_analog]=GetDiagOptode(obj, optode)
             % SOLUS_Return SOLUS_GetDiagOptode(SOLUS_H solus, ADDRESS Optode, LDs_analog* LD_Analog, Optode_analog_acq* Optode_Analog)
             [err, ~, LD_an_arry, Opt_an]=calllib(obj.LIBALIAS, 'SOLUS_GetDiagOptode', obj.s, optode, zeros(1,4*5,'uint16'), []);
@@ -187,6 +187,18 @@ classdef SOLUS < handle
                 LD_analog(k)=SOLUS_LD_analog(LD_an_arry((1:5)+(k-1)*5));
             end
             Optode_analog=SOLUS_Optode_analog(Opt_an);
+        end
+        
+        function LaserON(obj, optode, laser)
+            % SOLUS_Return SOLUS_LaserON(SOLUS_H solus, ADDRESS address, UINT8 laser)
+            err=calllib(obj.LIBALIAS, 'SOLUS_LaserON', obj.s, optode, laser);
+            SOLUS.checkError(err);           
+        end
+        
+        function LaserOFF(obj)
+            % SOLUS_Return SOLUS_LaserOFF(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_LaserOFF', obj.s);
+            SOLUS.checkError(err);           
         end
             
         function SetFlags(obj, flags, mask)
