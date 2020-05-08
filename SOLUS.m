@@ -301,8 +301,8 @@ classdef SOLUS < handle
 
         function H = GetMeasurement(obj,NLines)
             dataPtr = libpointer('FramePtrPtr');
-            
-            % SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines)
+            % TODO
+            % SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines, Status_array status);
             err=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines);
             SOLUS.checkError(err);
 
