@@ -31,9 +31,9 @@ classdef SOLUS_LD_Parameters
     methods
         % constructor / inizializator
         function obj = SOLUS_LD_Parameters(d_f__struct, d_c, w_f, w_c, i_f, i_c, c, s_f, s_c, c_l)
-            if nargin ~= 0 && nargin ~= 1 && nargin ~= 9
+            if nargin ~= 0 && nargin ~= 1 && nargin ~= 10
                 error('SOLUS_LD_Parameters:wrongArgs',...
-                    'SOLUS_LD_Parameters must be called with 0, 1 or 9 arguments');
+                    'SOLUS_LD_Parameters must be called with 0, 1 or 10 arguments');
             end
             if nargin == 1
                 obj=obj.fromStruct(d_f__struct);
