@@ -1,7 +1,7 @@
 /*
 #######################################
 
-Copyright 2019 Micro-Photon-Devices s.r.l.
+Copyright 2019-2020 Micro-Photon-Devices s.r.l.
 
 SOFTWARE PRODUCT: SOLUS_SDK
 
@@ -69,8 +69,8 @@ extern "C" {
 #define MAX_SEQUENCE 384						/**<Max Sequence Lenght.*/
 #define MAX_FRAMES 384*8						/**<Max frames.*/
 #define HISTOGRAM_BINS 128						/**<Number of histogram bins.*/
-#define FRAME_SIZE_INT_HIST (2 + 4 + 192 + 2)	/**<Frame size histogram mode.*/
-#define FRAME_SIZE_INT (2 + 4 + 2)				/**<Frame size intensity mode.*/
+#define FRAME_SIZE_INT_HIST (2 + 4 + 192 + 2 + 2 + 2)	/**<Frame size histogram mode. Status + CR + HIST + SPAD_on + GSIPM_temp + LD_current*/
+#define FRAME_SIZE_INT (2 + 4 + 2 + 2 + 2) 				/**<Frame size intensity mode. Status + CR + SPAD_on + GSIPM_temp + LD_current*/
 #define N_LD 4									/**<Number of laser driver chip per optode.*/
 #define N_OPTODE 8								/**<Number of optode. */
 #define N_PIXEL 1728							/**<Number of GSIPM pixels.*/
@@ -244,6 +244,7 @@ extern "C" {
 		// Sync Output
 		UINT16 SYNCD_F;			/**<Sync delay fine. Valid range 0..1023.*/
 		UINT8 SYNCD_C;			/**<Sync delay coarse. Valid range 0..15.*/
+		UINT16 CURRENT_LIMIT;   /**<Istantaneous current limit for all laser driver of an optode in multiples of 10uA.*/
 	} LD_parameters;
 
 	/**GSIPM register structure containing all registers for the GSIPM chip. Note that only few on them needs to be changed during normal use.
@@ -290,6 +291,9 @@ extern "C" {
 		UINT16 LD_Voltage;				/**<Laser driver supply voltage presets. Valid range 0..3. Default value: 0*/
 		UINT16 SPAD_Voltage;			/**<SPAD supply voltage in mV. Valid range 25000..29500*/
 		UINT16 GSIPM3v3_Voltage;		/**<GSIPM 3.3V supply voltage presets. Valid range 0..3. Default value: 0*/
+		UINT16 PAUSE_TIME;				/**<Pause time after each laser change, in multiples of 0.125ms*/
+		UINT16 LD_CURRENT_LIMIT;		/**<Average Current limit for all LD in the probe in multiples of 10uA.*/
+		UINT16 LD_CURRENT_AVERAGE_LENGTH; /**<Coefficient for the average of the LD current.*/
 	} Control_params;
 
 	/**Struct containing autocalibration parameters*/
@@ -304,7 +308,8 @@ extern "C" {
 	/**Low level Sequence line structure containing one line of the measurement sequence. It is 6 bytes long.	*/
 	struct _Sequence_Line_LL
 	{
-		UINT16 meas_time;				/**<Measurement time. If bit 16 is 0, bits 0-15 encode time with a 100us time bin, otherwise with a 10ms time bin.*/
+		UINT16 laser_off : 1;			/**<Force all laser off during the sequence line.*/
+		UINT16 meas_time: 15;			/**<Measurement time. If bit 14 is 0, bits 0-13 encode time with a 100us time bin, otherwise with a 10ms time bin.*/		
 		UINT16 attenuation : 12;		/**<Attenuation, i.e. number of disabled SPADs.*/
 		UINT16 gate_dly_c : 4;			/**<Gate delay coarse*/
 		UINT16 gate_dly_f : 10;			/**<Gate delay fine*/
@@ -314,11 +319,11 @@ extern "C" {
 	/**High level Sequence line structure containing one line of the measurement sequence.*/
 	struct _Sequence_Line
 	{
-		float meas_time;					/**<Measurement time in seconds. Valid range is 100us..327s. Actual value is rounded with 100us precision up to 3s, then with 10ms precision up to 327s.*/
+		float meas_time;					/**<Measurement time in seconds. Valid range is 100us..163s. Actual value is rounded with 100us precision up to 1.5s, then with 10ms precision up to 163s.*/
 		UINT16 attenuation[N_OPTODE];		/**<Attenuation, i.e. number of disabled SPADs for each optode. Valid range: 0..1727.*/
 		UINT8 gate_delay_coarse[N_OPTODE];	/**<Gate delay coarse for each optode. Valid range: 0..15.*/
 		UINT16 gate_delay_fine[N_OPTODE];	/**<Gate delay fine for each optode. Valid range: 0..1023.*/
-		UINT8 laser_num;					/**<Laser to fire. Valid range: 0..63.*/
+		UINT8 laser_num;					/**<Laser to fire. Valid range: 0..63 to select a laser. If 0xFF all laser will be off.*/
 	};
 
 	/**Low level Sequence union containing all lines of the measurement sequence.	*/
@@ -358,6 +363,48 @@ extern "C" {
 		struct _LD_status status[N_LD];		/**<LD status structure*/
 		UINT32 u32[N_LD];					/**<4 x 4 bytes*/
 	} LDs_status;
+
+	/**Union with status of control MCU. It is 1 byte long.	*/
+	typedef union{
+		struct {
+			UINT16 q_fromPC_is_full:1;     	/**<Command queue from PC full*/
+			UINT16 q_fromPC_data_is_full:1;	/**<Data queue from PC full*/
+			UINT16 Vpol_error_run:1;		/**<Vpol error*/
+			UINT16 Ispad_limit:1;			/**<Ispad limit exceeded*/
+			UINT16 Pinput_limit:1;			/**<Pinput limit exceeded*/
+			UINT16 Vinput_limit:1;			/**<Vinput limit exceeded*/
+			UINT16 P5V_error:1; 			/**<5V error*/
+			UINT16 Vpol_error_oth:1;		/**<Vpol error type*/
+			UINT16 Error_Optode:1;			/**<Optode error*/
+			UINT16 LD_I_limit:1;			/**<LD current limit exceeded*/
+			UINT16 :2;						/**<Unused*/
+			UINT16 stusb_bad_cfg:1;			/**<USB-C controller config error*/
+			UINT16 usbC_pow:2;				/**<USB-C power status: 0: error, 1:contracted 2.5W, 2: >15W, 3: > 20W*/
+			UINT16 interlock_active:1;		/**<Interlock active*/
+		};
+		UINT16 u16;
+	} ty_status_register_control;
+
+	/**Union with status of optode MCU. It is 1 byte long.	*/
+	typedef union{
+		struct {
+			UINT16 measurement_ready_to_start:1;	/**<Measurement ready to start*/
+			UINT16 measurement_in_progress:1;		/**<Measurement in progress*/
+			UINT16 measurement_ready_to_read:1;		/**<Measurement ready to be read*/
+			UINT16 gspim_core_current_range:2;		/**<Range of the GSIPM core current*/
+			UINT16 LD_conf_bad:1;					/**<Bad configuration of LD*/
+			UINT16 cmd_queue_full:1;				/**<Command queue is full*/
+			UINT16 gsipm_passthrough_err:1;			/**<Bad configuration of GSIPM*/
+			UINT16 i2c_error:1;						/**<I2C error*/	
+			UINT16 LD_pll_lock_error:1;				/**<LD PLL locking error*/
+			UINT16 LD_overcurrent:1;				/**<LD overcuttent*/
+			UINT16 LD_overtemp:1;					/**<LD overtemperature*/	
+			UINT16 LD_others:1;						/**<Other LD errors*/
+			UINT16 pic_temperature_range:2;			/**<Range of PIC temperature*/
+			UINT16 :1;								/**<Unused*/
+		};
+		uint16_t u16;
+	} ty_status_register_optode;
 
 	/**Structure containing the analog acquisitions for an optode.	*/
 	typedef struct {
@@ -399,7 +446,9 @@ extern "C" {
 		UINT16 histogram_data[HISTOGRAM_BINS];		/**<Complete histogram of the acquisition frame*/
 		UINT16 Area_ON;								/**<Number of enabled SPAD during the acquisition*/
 		ADDRESS Optode;								/**<Optode to which the frame refers*/
-		UINT16 Status;								/**<Status of the probe during acquisition*/
+		ty_status_register_optode Status_optode;	/**<Status of the optode during acquisition*/
+		float GSIPM_temperature;					/**<Temperature of the GSIPM during acquisition*/
+		UINT16 LD_current;							/**<LD current for the optode during acquisition in tens of uA.*/
 	} Frame;
 
 	/**Bidimensional array containing the DCR of the detectors.*/
@@ -414,6 +463,9 @@ extern "C" {
 
 	/**Array of boolean showing which optode are actually installed and working in the probe.*/
 	typedef BOOLEAN Opt_Present[N_OPTODE];
+
+	/**Array containing control status during full measurement. Each member of the array is the status word acquired at the end of each sequence line acquisition*/
+	typedef ty_status_register_control Status_array[MAX_SEQUENCE];
 
 #pragma pack(pop)
 
@@ -527,6 +579,8 @@ extern "C" {
 	\return COMM_TIMEOUT Communication timeout.
 	*/
 	DllSDKExport SOLUS_Return SOLUS_SetAutocalParams(SOLUS_H solus, Autocal_params Params);
+
+	DllSDKExport SOLUS_Return SOLUS_SetAutocalParams_byRef(SOLUS_H solus, Autocal_params *Params);
 
 	/**Set measurement sequence, low level.
 	Sets the measurement sequence for an optode at low level. If the effective sequence lenght is less than MAX_SEQUENCE, all fields of unused sequence entries must be set to 0.
@@ -697,14 +751,14 @@ extern "C" {
 	Gets the locally stored status for an optode.
 	\param solus SOLUS handle
 	\param optode Address of the optode
-	\param status Pointer to an UINT16 variable to hold the optode global status.
+	\param status Pointer to the variable to hold the optode global status.
 	\param LD_Status Pointer to the structure to hold the laser driver status.
 	\return OK Status getting was successful.
 	\return OUT_OF_RANGE An invalid optode Address was passed to the function.
 	\return OPTODE_NOT_PRESENT Optode not present or not working.
 	\return INVALID_POINTER An empty SOLUS handle or pointer to structures was passed.
 	*/
-	DllSDKExport SOLUS_Return SOLUS_GetStatusOptode(SOLUS_H solus, ADDRESS optode, UINT16* status, LDs_status* LD_Status);
+	DllSDKExport SOLUS_Return SOLUS_GetStatusOptode(SOLUS_H solus, ADDRESS optode, ty_status_register_optode* status, LDs_status* LD_Status);
 
 	/**Read the status for control MCU.
 	Reads the status for the control MCU an save it into the SOLUS object.
@@ -719,11 +773,11 @@ extern "C" {
 	/**Get the status for control MCU.
 	Gets the locally stored status for control MCU.
 	\param solus SOLUS handle
-	\param status Pointer to an UINT16 variable to hold the status.
+	\param status Pointer to the variable to hold the status.
 	\return OK Status getting was successful.
 	\return INVALID_POINTER An empty SOLUS handle or pointer to structures was passed.
 	*/
-	DllSDKExport SOLUS_Return SOLUS_GetStatusControl(SOLUS_H solus, UINT16* status);
+	DllSDKExport SOLUS_Return SOLUS_GetStatusControl(SOLUS_H solus, ty_status_register_control* status);
 
 	/**Read the actual laser frequency.
 	Read actual value for laser frequency from probe MCU.
@@ -793,10 +847,12 @@ extern "C" {
 	Gets the desired number of sequence lines from a running measurement and provide to the user the address of the internal data structure. Each line of the sequence is composed by N frames, where N is the
 	number of installed optodes (typically 8). Each frame rappresents an intensity or histogram measurement according to the programmed sequence. Data from the complete sequence may be acquired either with
 	a single or multiple calls of this function, however the user must take care not to request in total more lines than the length of the currently programmed sequence. In order to avoid data corruption,
-	it must be preceeded by \ref SOLUS_QueryNLinesAvailable(), unless the user is sure that the measurement time is elapsed.
+	it must be preceeded by \ref SOLUS_QueryNLinesAvailable(), unless the user is sure that the measurement time is elapsed. The function also return the status of the control MCU at the end of each sequence line
+	in the status array.
 	\param solus SOLUS handle
 	\param data Pointer to the data structure handle
 	\param NLines Number of sequence lines to be acquired. Accepted values: 1..384
+	\param status Array in which the status of the Control MCU at the end of each line of the sequence is saved
 	\return OK Frames acquired successfully.
 	\return INVALID_POINTER An empty SOLUS of data handle was passed.
 	\return OUT_OF_RANGE NLines out of range.
@@ -804,7 +860,7 @@ extern "C" {
 	\return COMM_ERROR Communication error.
 	\return COMM_TIMEOUT Communication timeout.
 	*/
-	DllSDKExport SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines);
+	DllSDKExport SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines, Status_array status);
 
 	/*@}*/
 	//------------ Service methods -----------------------------------------
