@@ -348,6 +348,22 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
+        function SetAutocalParams(obj, Autocal_params)
+            if ~isa(Autocal_params, 'SOLUS_Autocal_Parameters')
+                SOLUS.printError('badType','Autocal_params must be type SOLUS_Autocal_params');
+            end
+            strAutocal_params=Autocal_params.toStruct();
+            if ~strcmp(version('-release'),'2012a')
+                % SOLUS_Return SOLUS_SetAutocalParams(SOLUS_H solus, Autocal_params Params)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetAutocalParams', obj.s, strAutocal_params);
+            else
+                strAutocal_params_ptr=libpointer('Autocal_paramsPtr', strAutocal_params);
+                % SOLUS_Return SOLUS_SetAutocalParams_byRef(SOLUS_H solus, Autocal_params Params)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetAutocalParams_byRef', obj.s, strAutocal_params_ptr);
+            end
+            SOLUS.checkError(err);
+        end
+        
         function SaveEEPROM(obj, optode)
             % SOLUS_Return SOLUS_SaveEEPROM(SOLUS_H solus, ADDRESS address)
             err=calllib(obj.LIBALIAS, 'SOLUS_SaveEEPROM', obj.s, optode);

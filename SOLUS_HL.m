@@ -22,6 +22,7 @@ classdef SOLUS_HL < handle
         sequence;
         calibMap;
         flags;
+        AutocalParams;
     end
     
     properties(SetAccess = private)
@@ -181,6 +182,10 @@ classdef SOLUS_HL < handle
             obj.s.SetFlags(flags);
         end
         
+        function set.AutocalParams(obj, AutocalParams)
+            obj.s.SetAutocalParams(AutocalParams);
+        end
+        
         function value = get.analogLD(obj)
             for k=8:-1:1
                 if obj.s.optConnected(k)
@@ -273,7 +278,7 @@ classdef SOLUS_HL < handle
             if progress_on
                 consoleProgress(1)
             end
-            SH.solus.StopSequence();
+            obj.s.StopSequence();
         end
         
         %% print

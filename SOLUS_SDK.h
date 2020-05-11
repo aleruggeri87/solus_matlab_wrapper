@@ -528,6 +528,8 @@ extern "C" {
 	*/
 	DllSDKExport SOLUS_Return SOLUS_SetAutocalParams(SOLUS_H solus, Autocal_params Params);
 
+	DllSDKExport SOLUS_Return SOLUS_SetAutocalParams_byRef(SOLUS_H solus, Autocal_params *Params);
+
 	/**Set measurement sequence, low level.
 	Sets the measurement sequence for an optode at low level. If the effective sequence lenght is less than MAX_SEQUENCE, all fields of unused sequence entries must be set to 0.
 	\param solus SOLUS handle
