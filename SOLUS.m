@@ -411,6 +411,25 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderStop', obj.s);
             SOLUS.checkError(err);
         end
+
+        function ResetMCU(obj, optode)
+            % SOLUS_Return SOLUS_ResetMCU(SOLUS_H solus, ADDRESS address)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ResetMCU', obj.s, optode);
+            SOLUS.checkError(err);
+        end
+
+        function ReadAnalogLogs(obj)
+            % SOLUS_Return SOLUS_ReadAnalogLogs(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ReadAnalogLogs', obj.s);
+            SOLUS.checkError(err);
+        end
+        
+        function [idStr, bl_idStr]=ReadIDstrings(obj, optode)
+            voidStr=libpointer('cstring', repmat('0',64,1));
+            % SOLUS_Return SOLUS_ReadIDstrings(SOLUS_H solus, ADDRESS address, char * id_string, char * id_string_bl)
+            [err, ~, idStr, bl_idStr]=calllib(obj.LIBALIAS, 'SOLUS_ReadIDstrings', obj.s, optode, voidStr, voidStr);
+            SOLUS.checkError(err);
+        end
         
         function delete(obj)
             % SOLUS_Return SOLUS_Destr(SOLUS_H SOLUS);
