@@ -449,6 +449,10 @@ classdef SOLUS < handle
             throw(ME);
         end
         function adjustProtofile(filename)
+            repl{7}={'structs.Frame.members', 'error', 'uint16'};
+            repl{6}={'fcns.name{fcnNum}=''SOLUS_GetMeasurement'';', 'errorPtr', 'uint16Ptr'};
+            repl{5}={'fcns.name{fcnNum}=''SOLUS_GetStatusOptode'';', 'voidPtr', 'uint16Ptr'};
+            repl{4}={'fcns.name{fcnNum}=''SOLUS_GetStatusControl'';', 'voidPtr', 'uint16Ptr'};
             repl{3}={'fcns.name{fcnNum}=''SOLUS_GetDiagOptode'';', 's_LD_AnalogPtr', 'uint16Ptr'};
             repl{2}={'fcns.name{fcnNum}=''SOLUS_SetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
             repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'uint8Ptr'};

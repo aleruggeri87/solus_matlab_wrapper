@@ -403,7 +403,7 @@ extern "C" {
 			UINT16 pic_temperature_range:2;			/**<Range of PIC temperature*/
 			UINT16 :1;								/**<Unused*/
 		};
-		uint16_t u16;
+		UINT16 u16;
 	} ty_status_register_optode;
 
 	/**Structure containing the analog acquisitions for an optode.	*/
