@@ -15,6 +15,10 @@ classdef SOLUS_SequenceLine
     %
     %   Rev 1.0-20/11/2019: first issue
     
+    properties (Constant)
+        LASER_OFF = 255;
+    end
+
     properties
         meas_time = single(0);
         attenuation = zeros(1,8,'uint16');

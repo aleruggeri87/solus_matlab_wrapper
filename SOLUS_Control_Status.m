@@ -37,7 +37,9 @@ classdef SOLUS_Control_Status
                     'SOLUS_Control_Status must be called with 0 or 1 argument');
             end
             if nargin == 1
-                obj=obj.fromInt(num);
+                for k=1:numel(num)
+                    obj(k)=obj(1).fromInt(num(k));
+                end
             end
         end
         
@@ -61,11 +63,32 @@ classdef SOLUS_Control_Status
                 obj.Error_optode=bitget(num,9);
                 obj.LD_I_limit=bitget(num,10);
                 obj.stusb_bad_cfg=bitget(num,13);
-                obj.usbC_pow=uint16(sum(bitget(num,14:15).*uint16([1 2])));
+                obj.usbC_pow=bitget(num,15)*2+bitget(num,14);
                 obj.interlock_active=bitget(num,16);
             else
                 error('SOLUS_Control_Status:wrongArgs',...
                     'Input argument of SOLUS_Control_Status must be a uint16');
+            end
+        end
+
+        function disp(objAry)
+            dim=sprintf('  %dx%d ', size(objAry,1), size(objAry,2));
+            disp([dim '<a href="matlab:help SOLUS_Control_Status">SOLUS_Control_Status</a>'])
+            fprintf('\n\n  Properties:\n');
+            p=properties(SOLUS_Control_Status);
+            maxL=max(cellfun('length',p))+1;
+            for k=1:length(p)
+                fprintf('    %s%s: ', p{k}, repmat(' ',maxL-length(p{k}),1));
+                fprintf('%d, ', objAry.(p{k}));
+                fprintf('\b\b\n');
+            end
+            if numel(objAry)>5
+                idx=5:5:numel(objAry);
+                fprintf('    %s  %s           ', repmat(' ',maxL,1), '1');
+                for k=1:length(idx)
+                    fprintf('%d%s', idx(k), repmat(' ', 3*4-floor(log10(idx(k)))+2,1));
+                end
+                fprintf('\n')
             end
         end
     end
