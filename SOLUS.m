@@ -311,11 +311,10 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
 
-        function H = GetMeasurement(obj,NLines)
+        function [H, control_status] = GetMeasurement(obj,NLines)
             dataPtr = libpointer('FramePtrPtr');
-            % TODO
             % SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines, Status_array status);
-            err=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines);
+            [err, ~, ~, status_u16a]=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines, []);
             SOLUS.checkError(err);
 
             dataPtr.setdatatype('FramePtr');
@@ -329,7 +328,7 @@ classdef SOLUS < handle
                     dataPtr=dataPtr+1;
                 end
             end
-            
+            control_status = SOLUS_Control_Status(status_u16a);            
         end
 
         function StopSequence(obj, enable_dump)

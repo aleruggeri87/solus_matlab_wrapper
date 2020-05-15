@@ -234,7 +234,7 @@ classdef SOLUS_HL < handle
             value = obj.s.GetDiagControl();
         end
         
-        function data=getMeas(obj, nLines, progress_on)
+        function [data, control_status]=getMeas(obj, nLines, progress_on)
             if nargin < 3
                 progress_on = false;
             end
@@ -247,8 +247,9 @@ classdef SOLUS_HL < handle
             while tot_nl<nLines
                 nl=obj.s.QueryNLinesAvailable();
                 if nl~=0
-                    data_t=obj.s.GetMeasurement(nl);
+                    [data_t, status_t]=obj.s.GetMeasurement(nl);
                     data=[data; data_t]; %#ok<AGROW>
+                    control_status=[control_status status_t];
                     tot_nl=tot_nl+nl;
                     if progress_on
                         consoleProgress(double(tot_nl)/nLines);
