@@ -1,4 +1,4 @@
-    classdef SOLUS_Optode_analog
+    classdef SOLUS_Optode_analog < objArr
     % SOLUS_Optode_analog
     %
     %   Author(s):  Alessandro RUGGERI

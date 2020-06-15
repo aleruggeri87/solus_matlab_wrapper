@@ -1,4 +1,4 @@
-classdef SOLUS_Control_Status
+classdef SOLUS_Control_Status < objArr
     % SOLUS_Control_Status 
     %
     %   Author(s):  Alessandro RUGGERI
@@ -68,27 +68,6 @@ classdef SOLUS_Control_Status
             else
                 error('SOLUS_Control_Status:wrongArgs',...
                     'Input argument of SOLUS_Control_Status must be a uint16');
-            end
-        end
-
-        function disp(objAry)
-            dim=sprintf('  %dx%d ', size(objAry,1), size(objAry,2));
-            disp([dim '<a href="matlab:help SOLUS_Control_Status">SOLUS_Control_Status</a>'])
-            fprintf('\n\n  Properties:\n');
-            p=properties(SOLUS_Control_Status);
-            maxL=max(cellfun('length',p))+1;
-            for k=1:length(p)
-                fprintf('    %s%s: ', p{k}, repmat(' ',maxL-length(p{k}),1));
-                fprintf('%d, ', objAry.(p{k}));
-                fprintf('\b\b\n');
-            end
-            if numel(objAry)>5
-                idx=5:5:numel(objAry);
-                fprintf('    %s  %s           ', repmat(' ',maxL,1), '1');
-                for k=1:length(idx)
-                    fprintf('%d%s', idx(k), repmat(' ', 3*4-floor(log10(idx(k)))+2,1));
-                end
-                fprintf('\n')
             end
         end
     end

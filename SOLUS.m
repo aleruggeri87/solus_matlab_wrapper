@@ -115,7 +115,6 @@ classdef SOLUS < handle
             % SOLUS_Return SOLUS_GetSequence(SOLUS_H solus, Sequence* sequence)
             err=calllib(obj.LIBALIAS, 'SOLUS_GetSequence', obj.s, seqPtr_rd);
             SOLUS.checkError(err);
-            tic
             seq_str_rd(obj.N_ROWS)=SOLUS_SequenceLine();
             i=0;
             for k=1:obj.N_ROWS
@@ -126,7 +125,6 @@ classdef SOLUS < handle
                 seq_str_rd(k).laser_num=typecast(seqPtr_rd.Value((45)+i),'uint8');
                 i=i+45;
             end
-            toc
         end
 
         function SetOptodeParams(obj, LD_params, GSIPM_params, optode_addr)

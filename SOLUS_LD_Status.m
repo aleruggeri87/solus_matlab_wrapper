@@ -1,4 +1,4 @@
-classdef SOLUS_LD_Status
+classdef SOLUS_LD_Status < objArr
     % SOLUS_LD_Status 
     %
     %   Author(s):  Alessandro RUGGERI

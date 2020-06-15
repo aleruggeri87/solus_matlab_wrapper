@@ -1,4 +1,4 @@
-classdef SOLUS_LD_Parameters
+classdef SOLUS_LD_Parameters < objArr
     % SOLUS_LD_Parameters 
     %
     %   Author(s):  Alessandro RUGGERI

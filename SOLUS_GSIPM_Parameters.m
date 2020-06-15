@@ -1,4 +1,4 @@
-classdef SOLUS_GSIPM_Parameters
+classdef SOLUS_GSIPM_Parameters < objArr
     % SOLUS_GSIPM_Parameters 
     %
     %   Author(s):  Alessandro RUGGERI
