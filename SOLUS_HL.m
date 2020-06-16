@@ -345,7 +345,7 @@ classdef SOLUS_HL < handle
                     r=r+8;
                 end
                 r=r+3;
-                LD_params(j)=SOLUS_LD_Parameters(P(1,:), P(2,:), P(3,:), P(4,:), P(5,:), P(6,:), P(7,2:2:end), 0, 0); %#ok<AGROW>
+                LD_params(j)=SOLUS_LD_Parameters(P(1,:), P(2,:), P(3,:), P(4,:), P(5,:), P(6,:), P(7,2:2:end), 0, 0, 300*100); %#ok<AGROW>
             end
         end
         
