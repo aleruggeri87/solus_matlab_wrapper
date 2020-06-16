@@ -54,7 +54,7 @@ classdef SOLUS_Control_Parameters
             if isa(str,'struct')
                 fields={'LD_Voltage', 'SPAD_Voltage', 'GSIPM3v3_Voltage','PAUSE_TIME','LD_CURRENT_LIMIT','LD_CURRENT_AVERAGE_LENGTH'};
                 ok=true;
-                for k=1:length(fields);
+                for k=1:length(fields)
                     if ~isfield(str,fields{k})
                         ok=false;
                         break;

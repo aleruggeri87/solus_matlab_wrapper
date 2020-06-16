@@ -37,7 +37,7 @@ classdef SOLUS_LD_Parameters < objArr
             end
             if nargin == 1
                 obj=obj.fromStruct(d_f__struct);
-            elseif nargin == 9
+            elseif nargin == 10
                 obj.delay_f=d_f__struct;
                 obj.delay_c=d_c;
                 obj.width_f=w_f;
