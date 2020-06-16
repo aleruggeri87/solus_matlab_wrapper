@@ -316,8 +316,9 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
 
             dataPtr.setdatatype('FramePtr');
-
-            H(NLines,8)=dataPtr.Value; % preallocation (remember to overwrite/clear this)
+            
+            p=libpointer('FramePtr',libstruct('Frame'));
+            H(NLines,8)=p.Value; % preallocation
             K=find(obj.optConnected);
             L=length(K);
             for j=1:NLines
