@@ -312,7 +312,7 @@ classdef SOLUS < handle
         function [H, control_status] = GetMeasurement(obj,NLines)
             dataPtr = libpointer('FramePtrPtr');
             % SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines, Status_array status);
-            [err, ~, ~, status_u16a]=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines, []);
+            [err, ~, ~, status_u16a]=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines, zeros(1,384));
             SOLUS.checkError(err);
 
             dataPtr.setdatatype('FramePtr');

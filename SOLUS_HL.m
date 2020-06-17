@@ -244,12 +244,13 @@ classdef SOLUS_HL < handle
             if progress_on
                 consoleProgress(0,'Sequence dnwl');
             end
+            control_status=[];
             while tot_nl<nLines
                 nl=obj.s.QueryNLinesAvailable();
                 if nl~=0
                     [data_t, status_t]=obj.s.GetMeasurement(nl);
                     data=[data; data_t]; %#ok<AGROW>
-                    control_status=[control_status status_t];
+                    control_status=[control_status status_t(1:nl)];
                     tot_nl=tot_nl+nl;
                     if progress_on
                         consoleProgress(double(tot_nl)/nLines);
