@@ -96,6 +96,10 @@ classdef SOLUS_HL < handle
             end
         end
         
+        function set.gsipm_params(obj, val)
+            obj.OptodeParams_set(obj.LD_params,val);
+        end
+        
         function value = get.LD_params(obj)
             for k=8:-1:1
                 if obj.s.optConnected(k)
@@ -104,6 +108,10 @@ classdef SOLUS_HL < handle
                     value(k)=SOLUS_LD_Parameters();
                 end
             end
+        end
+        
+        function set.LD_params(obj, val)
+            obj.OptodeParams_set(val,obj.gsipm_params);
         end
         
         function OptodeParams_set(obj, LD_params__filename, GSIPM_params__filename)
