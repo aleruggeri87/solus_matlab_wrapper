@@ -228,7 +228,7 @@ classdef SOLUS < handle
         
         function ctrl_param = GetControlParams(obj)
             % SOLUS_Return SOLUS_GetControlParams(SOLUS_H solus, Control_params* Params)
-            [err, ~, cp]=calllib(obj.LIBALIAS, 'SOLUS_GetControlParams', obj.s, flags, mask);
+            [err, ~, cp]=calllib(obj.LIBALIAS, 'SOLUS_GetControlParams', obj.s, []);
             ctrl_param = SOLUS_Control_Parameters(cp);
             SOLUS.checkError(err);
         end

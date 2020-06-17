@@ -32,7 +32,7 @@ classdef SOLUS_Control_Parameters
                     'SOLUS_Control_Parameters must be called with 0, 1 or 6 arguments');
             end
             if nargin == 1
-                obj=obj.fromStruct(en1__struct);
+                obj=obj.fromStruct(LD_Voltage__struct);
             elseif nargin == 6
                 obj.LD_Voltage=LD_Voltage__struct;
                 obj.SPAD_Voltage=SPAD_Voltage;
