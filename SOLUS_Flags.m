@@ -22,6 +22,7 @@ classdef SOLUS_Flags
         TURNOFF_UNUSED_LD@logical = false;
         TRIM_METHOD = uint16(0);
         DISABLE_INTERLOCK@logical = false;
+        ENABLE_SYNCOUT@logical = false;
     end
     
     methods
@@ -39,7 +40,8 @@ classdef SOLUS_Flags
         function int = toInt(obj)
             int=uint16(obj.FORCE_LASER_OFF+obj.AUTOCAL*2+obj.OVERRIDE_MAP*4+...
                 obj.GSIPM_GATE_OFF_AFTER_MEAS*8+obj.LASER_OFF_AFTER_MEAS*16+...
-                obj.TURNOFF_UNUSED_LD*32+obj.TRIM_METHOD*64+obj.DISABLE_INTERLOCK*256);
+                obj.TURNOFF_UNUSED_LD*32+obj.TRIM_METHOD*64+obj.DISABLE_INTERLOCK*256+...
+                obj.ENABLE_SYNCOUT*512);
         end
         %% convert from int
         function obj = fromInt(obj, num)
@@ -64,7 +66,8 @@ classdef SOLUS_Flags
                 obj.LASER_OFF_AFTER_MEAS=bitget(num,5)==1;
                 obj.TURNOFF_UNUSED_LD=bitget(num,6)==1;
                 obj.TRIM_METHOD=uint16(sum(bitget(num,7:8).*uint16([1 2])));
-                obj.DISABLE_INTERLOCK=bitget(num,9)==1;                
+                obj.DISABLE_INTERLOCK=bitget(num,9)==1;
+                obj.ENABLE_SYNCOUT=bitget(num,10)==1;
             end
         end
         

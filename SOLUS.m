@@ -201,7 +201,7 @@ classdef SOLUS < handle
             
         function SetFlags(obj, flags, mask)
             if nargin < 3
-                mask = flags;
+                mask = SOLUS_Flags(65535);
             end
             
             if ~isa(flags, 'SOLUS_Flags')
