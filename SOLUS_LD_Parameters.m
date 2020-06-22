@@ -1,4 +1,4 @@
-classdef SOLUS_LD_Parameters < objArr
+classdef SOLUS_LD_Parameters
     % SOLUS_LD_Parameters 
     %
     %   Author(s):  Alessandro RUGGERI
@@ -25,7 +25,7 @@ classdef SOLUS_LD_Parameters < objArr
         citr = zeros(1,4,'uint8');
         sync_f = uint16(0);
         sync_c = uint8(0);
-        current_limit = uint16(0);
+        current_limit = int16(0);
     end
     
     methods
@@ -181,7 +181,7 @@ classdef SOLUS_LD_Parameters < objArr
         end
         function obj = set.current_limit(obj,val)
             if isscalar(val)
-                obj.current_limit=uint16(val);
+                obj.current_limit=int16(val);
             else
                 SOLUS_LD_Parameters.printError(1);
             end

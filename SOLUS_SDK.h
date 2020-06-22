@@ -93,6 +93,7 @@ extern "C" {
 #define	TRIM_METHOD_BITL 64					/**<Set the trim algorith to be used (LSB).*/
 #define	TRIM_METHOD_BITh 128				/**<Set the trim algorith to be used (MSB).*/
 #define	DISABLE_INTERLOCK 256				/**<If 1, bypass contact sensor interlock.*/
+#define	ENABLE_SYNCOUT 512					/**<If 1, enable laser sync output on U-FL connector.*/
 
 
 	/*@}*/
@@ -247,7 +248,7 @@ extern "C" {
 		// Sync Output
 		UINT16 SYNCD_F;			/**<Sync delay fine. Valid range 0..1023.*/
 		UINT8 SYNCD_C;			/**<Sync delay coarse. Valid range 0..15.*/
-		UINT16 CURRENT_LIMIT;   /**<Istantaneous current limit for all laser driver of an optode in multiples of 10uA.*/
+		INT16 CURRENT_LIMIT;   /**<Istantaneous current limit for all laser driver of an optode in multiples of 10uA.*/
 	} LD_parameters;
 
 	/**GSIPM register structure containing all registers for the GSIPM chip. Note that only few on them needs to be changed during normal use.
@@ -295,7 +296,7 @@ extern "C" {
 		UINT16 SPAD_Voltage;			/**<SPAD supply voltage in mV. Valid range 25000..29500*/
 		UINT16 GSIPM3v3_Voltage;		/**<GSIPM 3.3V supply voltage presets. Valid range 0..3. Default value: 0*/
 		UINT16 PAUSE_TIME;				/**<Pause time after each laser change, in multiples of 0.125ms*/
-		UINT16 LD_CURRENT_LIMIT;		/**<Average Current limit for all LD in the probe in multiples of 10uA.*/
+		UINT16 LD_CURRENT_LIMIT;		/**<Average Current limit for all LD in the probe in multiples of 100uA.*/
 		UINT16 LD_CURRENT_AVERAGE_LENGTH; /**<Coefficient for the average of the LD current.*/
 	} Control_params;
 
