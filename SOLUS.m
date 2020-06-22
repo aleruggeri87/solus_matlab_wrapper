@@ -318,7 +318,7 @@ classdef SOLUS < handle
             dataPtr.setdatatype('FramePtr');
             
             p=libpointer('FramePtr',libstruct('Frame'));
-            H(NLines,8)=p.Value; % preallocation
+            H(1:NLines,1:8)=p.Value; % preallocation
             K=find(obj.optConnected);
             L=length(K);
             for j=1:NLines
@@ -327,7 +327,7 @@ classdef SOLUS < handle
                     dataPtr=dataPtr+1;
                 end
             end
-            control_status = SOLUS_Control_Status(status_u16a);            
+            control_status = SOLUS_Control_Status(status_u16a(1:NLines));            
         end
 
         function StopSequence(obj, enable_dump)
