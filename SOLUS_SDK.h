@@ -381,7 +381,8 @@ extern "C" {
 			UINT16 Vpol_error_oth:1;		/**<Vpol error type*/
 			UINT16 Error_Optode:1;			/**<Optode error*/
 			UINT16 LD_I_limit:1;			/**<LD current limit exceeded*/
-			UINT16 :2;						/**<Unused*/
+			UINT16 power_disabled:1;		/**<Power supplies have been turned off*/
+			UINT16 :1;						/**<Unused*/
 			UINT16 stusb_bad_cfg:1;			/**<USB-C controller config error*/
 			UINT16 usbC_pow:2;				/**<USB-C power status: 0: error, 1:contracted 2.5W, 2: >15W, 3: > 20W*/
 			UINT16 interlock_active:1;		/**<Interlock active*/

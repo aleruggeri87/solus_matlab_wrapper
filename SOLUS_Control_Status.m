@@ -24,6 +24,7 @@ classdef SOLUS_Control_Status < objArr
         Vpol_error_oth=false;
         Error_optode=false;
         LD_I_limit=false;
+        power_disabled=false;
         stusb_bad_cfg=false;
         usbC_pow=0; % 0: error, 1: contracted 2.5W, 2: >15W, 3: >20W
         interlock_active=false;
@@ -47,7 +48,8 @@ classdef SOLUS_Control_Status < objArr
         function int = toInt(obj)
             int=uint16(obj.q_fromPC_is_full+obj.q_fromPC_data_is_full*2+obj.Vpol_error_run*4+obj.Ispad_limit*8+...
                 obj.Pinput_limit*16+obj.Vinput_limit*32+obj.P5V_error*64+obj.Vpol_error_oth*128+...
-                obj.Error_optode*256+obj.LD_I_limit*512+obj.stusb_bad_cfg*4096+obj.usbC_pow*8192+obj.interlock_active*32768);
+                obj.Error_optode*256+obj.LD_I_limit*512+obj.power_disabled*1024+obj.stusb_bad_cfg*4096+...
+                obj.usbC_pow*8192+obj.interlock_active*32768);
         end
         %% convert from int
         function obj = fromInt(obj, num)
@@ -62,6 +64,7 @@ classdef SOLUS_Control_Status < objArr
                 obj.Vpol_error_oth=bitget(num,8);
                 obj.Error_optode=bitget(num,9);
                 obj.LD_I_limit=bitget(num,10);
+                obj.power_disabled=bitget(num,11);
                 obj.stusb_bad_cfg=bitget(num,13);
                 obj.usbC_pow=bitget(num,15)*2+bitget(num,14);
                 obj.interlock_active=bitget(num,16);
