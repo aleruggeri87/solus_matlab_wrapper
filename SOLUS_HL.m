@@ -416,7 +416,7 @@ classdef SOLUS_HL < handle
                         pct50=round(pct*50);
                         str=[repmat('#',1,pct50) repmat(' ',1,50-pct50)];
                         len=fprintf('Programming %s... [%s]\n', id, str);
-                        pct=sol.BootLoaderAct(address(k));
+                        pct=sol.BootLoaderAct();
                         fprintf(repmat(char(8),1,len));
                     catch err
                         try %#ok<TRYNC>

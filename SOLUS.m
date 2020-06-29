@@ -398,9 +398,9 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function progress=BootLoaderAct(obj, optode)
-            % SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, ADDRESS address, float *programming_pct)
-            [err,~,progress]=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderAct', obj.s, optode, 0);
+        function progress=BootLoaderAct(obj)
+            % SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, float *programming_pct)
+            [err,~,progress]=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderAct', obj.s, 0);
             SOLUS.checkError(err);
         end
         

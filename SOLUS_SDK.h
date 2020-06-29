@@ -943,7 +943,7 @@ extern "C" {
 	\param address Address of the optode/control
 	\param programming_pct Programming percentage
 	*/
-	DllSDKExport SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, ADDRESS address, float *programming_pct);
+	DllSDKExport SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, float *programming_pct);
 	
 	/**Stop bootloader programming.
 	Call this function after SOLUS_BootLoaderAct() reached 1 or returned an error
