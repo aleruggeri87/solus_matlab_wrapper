@@ -429,6 +429,17 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
+        function PowerSupply(obj, optode, config)
+            warning('SOLUS.PowerSupply() is a debug function. Type YES if you want to proceed, anything else to quit.')
+            answer=input('','s');
+            if strcmp(answer, 'YES')
+                % SOLUS_Return SOLUS_PowerSupplyON(SOLUS_H solus, ADDRESS address, UINT16 config)
+                err=calllib(obj.LIBALIAS, 'SOLUS_PowerSupplyON', obj.s, optode, config);
+                SOLUS.checkError(err);
+            end
+            
+        end
+        
         function delete(obj)
             % SOLUS_Return SOLUS_Destr(SOLUS_H SOLUS);
             err=calllib(obj.LIBALIAS, 'SOLUS_Destr', obj.s);
