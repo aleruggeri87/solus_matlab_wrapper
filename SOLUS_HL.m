@@ -396,6 +396,9 @@ classdef SOLUS_HL < handle
         end
         
         function bootloader(hex_path, address)
+            if SOLUS.numInstances ~= 0
+                error('There are active instances of SOLUS class! Delete all of them reboot and retry.');
+            end
             sol=SOLUS(true);
             fprintf('=== SOLUS Bootloader ===\n');
             if nargin < 2
