@@ -50,7 +50,9 @@ classdef SOLUS_HL < handle
         end
         
         function delete(obj)
-            obj.s.delete();
+            if ~isempty(obj.s)
+                obj.s.delete();
+            end
         end
         
         function value = get.solus(obj)
@@ -242,9 +244,12 @@ classdef SOLUS_HL < handle
             value = obj.s.GetDiagControl();
         end
         
-        function [data, control_status]=getMeas(obj, nLines, progress_on)
+        function [data, control_status]=getMeas(obj, nLines, progress_on, dump_en)
             if nargin < 3
                 progress_on = false;
+            end
+            if nargin < 4
+                dump_en = false;
             end
             obj.s.StartSequence();
             data=[];
@@ -272,7 +277,7 @@ classdef SOLUS_HL < handle
             if progress_on
                 consoleProgress(1)
             end
-            obj.s.StopSequence();
+            obj.s.StopSequence(dump_en);
         end
         
         %% print
