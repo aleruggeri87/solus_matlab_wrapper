@@ -50,6 +50,7 @@ classdef SOLUS < handle
                 [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr_nodata', obj.s, obj.optConnected);
             end
             SOLUS.checkError(err);
+            obj.getOrIncrementInstCount(1);
         end
         
         function SetLaserFrequency(obj, laser_frequency)
@@ -441,6 +442,7 @@ classdef SOLUS < handle
         end
         
         function delete(obj)
+            obj.getOrIncrementInstCount(-1);
             % SOLUS_Return SOLUS_Destr(SOLUS_H SOLUS);
             err=calllib(obj.LIBALIAS, 'SOLUS_Destr', obj.s);
             SOLUS.checkError(err);
@@ -451,6 +453,9 @@ classdef SOLUS < handle
     methods (Static)
         function yes = isLibLoad()
             yes = libisloaded(SOLUS.LIBALIAS);
+        end
+        function n = numInstances()
+            n = SOLUS.getOrIncrementInstCount();
         end
         
         function mex=loadLib()
@@ -524,6 +529,16 @@ classdef SOLUS < handle
             fid=fopen(filename,'w');
             fwrite(fid,str,'char');
             fclose(fid);
+        end
+        function n_inst = getOrIncrementInstCount(increment)
+            persistent N_INSTANCES
+            if isempty(N_INSTANCES)
+                N_INSTANCES = 0;
+            end
+            n_inst = N_INSTANCES;
+            if nargin > 0
+                N_INSTANCES = N_INSTANCES + increment;
+            end
         end
     end
 end
