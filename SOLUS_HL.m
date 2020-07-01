@@ -254,15 +254,19 @@ classdef SOLUS_HL < handle
             end
             control_status(1:nLines)=SOLUS_Control_Status();
             while tot_nl<nLines
-                nl=obj.s.QueryNLinesAvailable();
+                [nl,err]=obj.s.QueryNLinesAvailable();
                 if nl~=0
-                    [data_t, status_t]=obj.s.GetMeasurement(nl);
+                    [data_t, status_t, err]=obj.s.GetMeasurement(nl);
                     data=[data; data_t]; %#ok<AGROW>
                     control_status(tot_nl+1:tot_nl+nl)=status_t;
                     tot_nl=tot_nl+nl;
                     if progress_on
                         consoleProgress(double(tot_nl)/nLines);
                     end
+                end
+                if ~strcmp(err,'OK')
+                    ME = MException(['SOLUS:' err], err);
+                    throw(ME);
                 end
             end
             if progress_on

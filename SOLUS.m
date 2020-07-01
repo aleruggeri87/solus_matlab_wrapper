@@ -304,17 +304,21 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function nLines = QueryNLinesAvailable(obj)
+        function [nLines, err] = QueryNLinesAvailable(obj)
             % SOLUS_Return SOLUS_QueryNLinesAvailable(SOLUS_H solus, UINT16 *NLines)
             [err, ~, nLines]=calllib(obj.LIBALIAS, 'SOLUS_QueryNLinesAvailable', obj.s, 0);
-            SOLUS.checkError(err);
+            if nargout<2
+                SOLUS.checkError(err);
+            end
         end
 
-        function [H, control_status] = GetMeasurement(obj,NLines)
+        function [H, control_status, err] = GetMeasurement(obj,NLines)
             dataPtr = libpointer('FramePtrPtr');
             % SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines, Status_array status);
             [err, ~, ~, status_u16a]=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines, zeros(1,384));
-            SOLUS.checkError(err);
+            if nargout<3
+                SOLUS.checkError(err);
+            end
 
             dataPtr.setdatatype('FramePtr');
             
