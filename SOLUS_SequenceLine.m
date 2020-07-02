@@ -72,7 +72,7 @@ classdef SOLUS_SequenceLine
             if isa(str,'struct')
                 fields={'meas_time', 'attenuation', 'gate_delay_coarse', 'gate_delay_fine', 'laser_num'};
                 ok=true;
-                for k=1:length(fields);
+                for k=1:length(fields)
                     if ~isfield(str,fields{k})
                         ok=false;
                         break;

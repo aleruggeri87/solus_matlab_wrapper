@@ -64,7 +64,7 @@ classdef SOLUS_Autocal_Parameters
             if isa(str,'struct')
                 fields={'goal', 'meas_time', 'steps', 'start_pos'};
                 ok=true;
-                for k=1:length(fields);
+                for k=1:length(fields)
                     if ~isfield(str,fields{k})
                         ok=false;
                         break;

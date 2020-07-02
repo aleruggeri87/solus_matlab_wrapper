@@ -41,7 +41,7 @@ classdef SOLUS_LD_analog
         
         % convert class to struct
         function str = toStruct(obj)
-            for k=1:length(obj.fields);
+            for k=1:length(obj.fields)
                 str.(obj.fields{k})=obj.(obj.fields{k});
             end
         end
@@ -50,7 +50,7 @@ classdef SOLUS_LD_analog
             % convert struct to class
             if isa(str_arr,'struct')
                 ok=true;
-                for k=1:length(obj.fields);
+                for k=1:length(obj.fields)
                     if ~isfield(str_arr,obj.fields{k})
                         ok=false;
                         break;

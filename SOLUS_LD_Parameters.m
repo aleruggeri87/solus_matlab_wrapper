@@ -84,7 +84,7 @@ classdef SOLUS_LD_Parameters
             if isa(str,'struct')
                 fields={'DELAY_F', 'DELAY_C', 'WIDTH_F', 'WIDTH_C', 'I_FINE', 'I_COARSE', 'CITR', 'SYNCD_F', 'SYNCD_C', 'CURRENT_LIMIT'};
                 ok=true;
-                for k=1:length(fields);
+                for k=1:length(fields)
                     if ~isfield(str,fields{k})
                         ok=false;
                         break;
