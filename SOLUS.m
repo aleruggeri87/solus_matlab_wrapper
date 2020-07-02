@@ -25,11 +25,11 @@ classdef SOLUS < handle
         OPTODE7 = 6;
         OPTODE8 = 7;
         CONTROL = 8;
+        N_ROWS=384;
     end
     
     properties (Constant, Access = private)
         LIBALIAS = 'SOLUS_SDK';
-        N_ROWS=384;
         N_LD=4;
         N_OPT=8;
     end

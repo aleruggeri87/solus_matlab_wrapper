@@ -387,13 +387,13 @@ classdef SOLUS_HL < handle
         
         function sequence=sequence_fromFile(filename)
             A=dlmread(filename,'\t',1,0);
-            if size(A,1)==384
+            if size(A,1)==SOLUS.N_ROWS
                 if size(A,2)==28 % new TRS file format
-                    for k=384:-1:1
+                    for k=SOLUS.N_ROWS:-1:1
                         sequence(k)=SOLUS_SequenceLine(A(k,1),A(k,2:3:23), A(k,3:3:24), A(k,4:3:25), A(k,26));
                     end
                 elseif size(A,2)==5 % old TRS file format
-                    for k=384:-1:1
+                    for k=SOLUS.N_ROWS:-1:1
                         sequence(k)=SOLUS_SequenceLine(A(k,1),repmat(A(k,2),1,8), repmat(A(k,3),1,8), repmat(A(k,4),1,8), A(k,5));
                     end
                 else
