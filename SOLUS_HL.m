@@ -22,6 +22,7 @@ classdef SOLUS_HL < handle
         sequence;
         calibMap;
         flags;
+        AutocalParams;
     end
     
     properties(SetAccess = private)
@@ -49,7 +50,9 @@ classdef SOLUS_HL < handle
         end
         
         function delete(obj)
-            obj.s.delete();
+            if ~isempty(obj.s)
+                obj.s.delete();
+            end
         end
         
         function value = get.solus(obj)
@@ -95,6 +98,10 @@ classdef SOLUS_HL < handle
             end
         end
         
+        function set.gsipm_params(obj, val)
+            obj.OptodeParams_set(obj.LD_params,val);
+        end
+        
         function value = get.LD_params(obj)
             for k=8:-1:1
                 if obj.s.optConnected(k)
@@ -103,6 +110,10 @@ classdef SOLUS_HL < handle
                     value(k)=SOLUS_LD_Parameters();
                 end
             end
+        end
+        
+        function set.LD_params(obj, val)
+            obj.OptodeParams_set(val,obj.gsipm_params);
         end
         
         function OptodeParams_set(obj, LD_params__filename, GSIPM_params__filename)
@@ -181,6 +192,10 @@ classdef SOLUS_HL < handle
             obj.s.SetFlags(flags);
         end
         
+        function set.AutocalParams(obj, AutocalParams)
+            obj.s.SetAutocalParams(AutocalParams);
+        end
+        
         function value = get.analogLD(obj)
             for k=8:-1:1
                 if obj.s.optConnected(k)
@@ -229,29 +244,12 @@ classdef SOLUS_HL < handle
             value = obj.s.GetDiagControl();
         end
         
-        function bootloader(obj, address, hex_path)
-            obj.s.BootLoaderStart(address, hex_path);
-            pct=0;
-            t1=clock;
-            while pct~=1
-                try
-                    pct50=round(pct*50);
-                    str=[repmat('#',1,pct50) repmat(' ',1,50-pct50)];
-                    fprintf('Programming... [%s]\n', str);
-                    pct=obj.s.BootLoaderAct(address);
-                    fprintf(repmat(char(8),1,50+18));
-                catch err
-                    obj.s.BootLoaderStop();
-                    rethrow(err);
-                end
-            end
-            fprintf('Programming done, elapsed time: %.2f\n\n', etime(clock, t1));
-            obj.s.BootLoaderStop();
-        end
-        
-        function data=getMeas(obj, nLines, progress_on)
+        function [data, control_status]=getMeas(obj, nLines, progress_on, dump_en)
             if nargin < 3
                 progress_on = false;
+            end
+            if nargin < 4
+                dump_en = false;
             end
             obj.s.StartSequence();
             data=[];
@@ -259,21 +257,27 @@ classdef SOLUS_HL < handle
             if progress_on
                 consoleProgress(0,'Sequence dnwl');
             end
+            control_status(1:nLines)=SOLUS_Control_Status();
             while tot_nl<nLines
-                nl=obj.s.QueryNLinesAvailable();
+                [nl,err]=obj.s.QueryNLinesAvailable();
                 if nl~=0
-                    data_t=obj.s.GetMeasurement(nl);
+                    [data_t, status_t, err]=obj.s.GetMeasurement(nl);
                     data=[data; data_t]; %#ok<AGROW>
+                    control_status(tot_nl+1:tot_nl+nl)=status_t;
                     tot_nl=tot_nl+nl;
                     if progress_on
                         consoleProgress(double(tot_nl)/nLines);
                     end
                 end
+                if ~strcmp(err,'OK')
+                    ME = MException(['SOLUS:' err], err);
+                    throw(ME);
+                end
             end
             if progress_on
                 consoleProgress(1)
             end
-            SH.solus.StopSequence();
+            obj.s.StopSequence(dump_en);
         end
         
         %% print
@@ -359,7 +363,7 @@ classdef SOLUS_HL < handle
                     r=r+8;
                 end
                 r=r+3;
-                LD_params(j)=SOLUS_LD_Parameters(P(1,:), P(2,:), P(3,:), P(4,:), P(5,:), P(6,:), P(7,2:2:end), 0, 0); %#ok<AGROW>
+                LD_params(j)=SOLUS_LD_Parameters(P(1,:), P(2,:), P(3,:), P(4,:), P(5,:), P(6,:), P(7,2:2:end), 0, 0, 300*100); %#ok<AGROW>
             end
         end
         
@@ -383,13 +387,13 @@ classdef SOLUS_HL < handle
         
         function sequence=sequence_fromFile(filename)
             A=dlmread(filename,'\t',1,0);
-            if size(A,1)==384
+            if size(A,1)==SOLUS.N_ROWS
                 if size(A,2)==28 % new TRS file format
-                    for k=384:-1:1
+                    for k=SOLUS.N_ROWS:-1:1
                         sequence(k)=SOLUS_SequenceLine(A(k,1),A(k,2:3:23), A(k,3:3:24), A(k,4:3:25), A(k,26));
                     end
                 elseif size(A,2)==5 % old TRS file format
-                    for k=384:-1:1
+                    for k=SOLUS.N_ROWS:-1:1
                         sequence(k)=SOLUS_SequenceLine(A(k,1),repmat(A(k,2),1,8), repmat(A(k,3),1,8), repmat(A(k,4),1,8), A(k,5));
                     end
                 else
@@ -398,6 +402,48 @@ classdef SOLUS_HL < handle
             else
                 error('SOLUS_HL.sequence_fromFile, unexpected file size: wrong number of lines.');
             end
+        end
+        
+        function bootloader(hex_path, address)
+            if SOLUS.numInstances ~= 0
+                error('There are active instances of SOLUS class! Delete all of them reboot and retry.');
+            end
+            sol=SOLUS(true);
+            fprintf('=== SOLUS Bootloader ===\n');
+            if nargin < 2
+                address = 0:7;
+            end
+            for k=1:length(address)
+                switch address(k)
+                    case SOLUS.CONTROL
+                        id = 'control';
+                    otherwise
+                        id = ['optode ' num2str(address(k))];
+                end
+                sol.BootLoaderStart(address(k), hex_path);
+                pct=0;
+                t1=clock;
+                while pct~=1
+                    try
+                        pct50=round(pct*50);
+                        str=[repmat('#',1,pct50) repmat(' ',1,50-pct50)];
+                        len=fprintf('Programming %s... [%s]\n', id, str);
+                        pct=sol.BootLoaderAct();
+                        fprintf(repmat(char(8),1,len));
+                    catch err
+                        try %#ok<TRYNC>
+                            sol.BootLoaderStop();
+                            sol.delete();
+                        end
+                        rethrow(err);
+                    end
+                end
+                fprintf('Programming %s done, elapsed time: %.2f\n\n', id, etime(clock, t1));
+                sol.BootLoaderStop();
+                pause(0.5)
+            end
+            sol.ResetMCU(SOLUS.CONTROL);
+            sol.delete();
         end
     end
 end

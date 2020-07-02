@@ -1,4 +1,4 @@
-classdef SOLUS_Optode_Status
+classdef SOLUS_Optode_Status < objArr
     % SOLUS_Optode_Status 
     %
     %   Author(s):  Alessandro RUGGERI

@@ -25,11 +25,11 @@ classdef SOLUS < handle
         OPTODE7 = 6;
         OPTODE8 = 7;
         CONTROL = 8;
+        N_ROWS=384;
     end
     
     properties (Constant, Access = private)
         LIBALIAS = 'SOLUS_SDK';
-        N_ROWS=384;
         N_LD=4;
         N_OPT=8;
     end
@@ -50,6 +50,7 @@ classdef SOLUS < handle
                 [err,~,obj.optConnected]=calllib(obj.LIBALIAS, 'SOLUS_Constr_nodata', obj.s, obj.optConnected);
             end
             SOLUS.checkError(err);
+            obj.getOrIncrementInstCount(1);
         end
         
         function SetLaserFrequency(obj, laser_frequency)
@@ -115,7 +116,6 @@ classdef SOLUS < handle
             % SOLUS_Return SOLUS_GetSequence(SOLUS_H solus, Sequence* sequence)
             err=calllib(obj.LIBALIAS, 'SOLUS_GetSequence', obj.s, seqPtr_rd);
             SOLUS.checkError(err);
-            tic
             seq_str_rd(obj.N_ROWS)=SOLUS_SequenceLine();
             i=0;
             for k=1:obj.N_ROWS
@@ -126,7 +126,6 @@ classdef SOLUS < handle
                 seq_str_rd(k).laser_num=typecast(seqPtr_rd.Value((45)+i),'uint8');
                 i=i+45;
             end
-            toc
         end
 
         function SetOptodeParams(obj, LD_params, GSIPM_params, optode_addr)
@@ -178,7 +177,7 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_ReadDiagOptode', obj.s, optode);
             SOLUS.checkError(err);           
         end
-        
+            
         function [LD_analog, Optode_analog]=GetDiagOptode(obj, optode)
             % SOLUS_Return SOLUS_GetDiagOptode(SOLUS_H solus, ADDRESS Optode, LDs_analog* LD_Analog, Optode_analog_acq* Optode_Analog)
             [err, ~, LD_an_arry, Opt_an]=calllib(obj.LIBALIAS, 'SOLUS_GetDiagOptode', obj.s, optode, zeros(1,4*5,'uint16'), []);
@@ -188,10 +187,22 @@ classdef SOLUS < handle
             end
             Optode_analog=SOLUS_Optode_analog(Opt_an);
         end
+        
+        function LaserON(obj, optode, laser)
+            % SOLUS_Return SOLUS_LaserON(SOLUS_H solus, ADDRESS address, UINT8 laser)
+            err=calllib(obj.LIBALIAS, 'SOLUS_LaserON', obj.s, optode, laser);
+            SOLUS.checkError(err);           
+        end
+        
+        function LaserOFF(obj)
+            % SOLUS_Return SOLUS_LaserOFF(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_LaserOFF', obj.s);
+            SOLUS.checkError(err);           
+        end
             
         function SetFlags(obj, flags, mask)
             if nargin < 3
-                mask = flags;
+                mask = SOLUS_Flags(65535);
             end
             
             if ~isa(flags, 'SOLUS_Flags')
@@ -218,7 +229,7 @@ classdef SOLUS < handle
         
         function ctrl_param = GetControlParams(obj)
             % SOLUS_Return SOLUS_GetControlParams(SOLUS_H solus, Control_params* Params)
-            [err, ~, cp]=calllib(obj.LIBALIAS, 'SOLUS_GetControlParams', obj.s, flags, mask);
+            [err, ~, cp]=calllib(obj.LIBALIAS, 'SOLUS_GetControlParams', obj.s, []);
             ctrl_param = SOLUS_Control_Parameters(cp);
             SOLUS.checkError(err);
         end
@@ -293,22 +304,26 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function nLines = QueryNLinesAvailable(obj)
+        function [nLines, err] = QueryNLinesAvailable(obj)
             % SOLUS_Return SOLUS_QueryNLinesAvailable(SOLUS_H solus, UINT16 *NLines)
             [err, ~, nLines]=calllib(obj.LIBALIAS, 'SOLUS_QueryNLinesAvailable', obj.s, 0);
-            SOLUS.checkError(err);
+            if nargout<2
+                SOLUS.checkError(err);
+            end
         end
 
-        function H = GetMeasurement(obj,NLines)
+        function [H, control_status, err] = GetMeasurement(obj,NLines)
             dataPtr = libpointer('FramePtrPtr');
-            
-            % SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines)
-            err=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines);
-            SOLUS.checkError(err);
+            % SOLUS_Return SOLUS_GetMeasurement(SOLUS_H solus, Data_H* data, UINT16 NLines, Status_array status);
+            [err, ~, ~, status_u16a]=calllib(obj.LIBALIAS, 'SOLUS_GetMeasurement', obj.s, dataPtr, NLines, zeros(1,384));
+            if nargout<3
+                SOLUS.checkError(err);
+            end
 
             dataPtr.setdatatype('FramePtr');
-
-            H(NLines,8)=dataPtr.Value; % preallocation (remember to overwrite/clear this)
+            
+            p=libpointer('FramePtr',libstruct('Frame'));
+            H(1:NLines,1:8)=p.Value; % preallocation
             K=find(obj.optConnected);
             L=length(K);
             for j=1:NLines
@@ -317,7 +332,7 @@ classdef SOLUS < handle
                     dataPtr=dataPtr+1;
                 end
             end
-            
+            control_status = SOLUS_Control_Status(status_u16a(1:NLines));            
         end
 
         function StopSequence(obj, enable_dump)
@@ -333,6 +348,22 @@ classdef SOLUS < handle
             
             % SOLUS_Return SOLUS_StopSequence(SOLUS_H solus, BOOLEAN enable_dump)
             err=calllib(obj.LIBALIAS, 'SOLUS_StopSequence', obj.s, en_dmp);
+            SOLUS.checkError(err);
+        end
+        
+        function SetAutocalParams(obj, Autocal_params)
+            if ~isa(Autocal_params, 'SOLUS_Autocal_Parameters')
+                SOLUS.printError('badType','Autocal_params must be type SOLUS_Autocal_params');
+            end
+            strAutocal_params=Autocal_params.toStruct();
+            if ~strcmp(version('-release'),'2012a')
+                % SOLUS_Return SOLUS_SetAutocalParams(SOLUS_H solus, Autocal_params Params)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetAutocalParams', obj.s, strAutocal_params);
+            else
+                strAutocal_params_ptr=libpointer('Autocal_paramsPtr', strAutocal_params);
+                % SOLUS_Return SOLUS_SetAutocalParams_byRef(SOLUS_H solus, Autocal_params Params)
+                err=calllib(obj.LIBALIAS, 'SOLUS_SetAutocalParams_byRef', obj.s, strAutocal_params_ptr);
+            end
             SOLUS.checkError(err);
         end
         
@@ -372,9 +403,9 @@ classdef SOLUS < handle
             SOLUS.checkError(err);
         end
         
-        function progress=BootLoaderAct(obj, optode)
-            % SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, ADDRESS address, float *programming_pct)
-            [err,~,progress]=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderAct', obj.s, optode, 0);
+        function progress=BootLoaderAct(obj)
+            % SOLUS_Return SOLUS_BootLoaderAct(SOLUS_H solus, float *programming_pct)
+            [err,~,progress]=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderAct', obj.s, 0);
             SOLUS.checkError(err);
         end
         
@@ -383,8 +414,39 @@ classdef SOLUS < handle
             err=calllib(obj.LIBALIAS, 'SOLUS_BootLoaderStop', obj.s);
             SOLUS.checkError(err);
         end
+
+        function ResetMCU(obj, optode)
+            % SOLUS_Return SOLUS_ResetMCU(SOLUS_H solus, ADDRESS address)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ResetMCU', obj.s, optode);
+            SOLUS.checkError(err);
+        end
+
+        function ReadAnalogLogs(obj)
+            % SOLUS_Return SOLUS_ReadAnalogLogs(SOLUS_H solus)
+            err=calllib(obj.LIBALIAS, 'SOLUS_ReadAnalogLogs', obj.s);
+            SOLUS.checkError(err);
+        end
+        
+        function [idStr, bl_idStr]=ReadIDstrings(obj, optode)
+            voidStr=libpointer('cstring', repmat('0',64,1));
+            % SOLUS_Return SOLUS_ReadIDstrings(SOLUS_H solus, ADDRESS address, char * id_string, char * id_string_bl)
+            [err, ~, idStr, bl_idStr]=calllib(obj.LIBALIAS, 'SOLUS_ReadIDstrings', obj.s, optode, voidStr, voidStr);
+            SOLUS.checkError(err);
+        end
+        
+        function PowerSupply(obj, optode, config)
+            warning('SOLUS.PowerSupply() is a debug function. Type YES if you want to proceed, anything else to quit.')
+            answer=input('','s');
+            if strcmp(answer, 'YES')
+                % SOLUS_Return SOLUS_PowerSupplyON(SOLUS_H solus, ADDRESS address, UINT16 config)
+                err=calllib(obj.LIBALIAS, 'SOLUS_PowerSupplyON', obj.s, optode, config);
+                SOLUS.checkError(err);
+            end
+            
+        end
         
         function delete(obj)
+            obj.getOrIncrementInstCount(-1);
             % SOLUS_Return SOLUS_Destr(SOLUS_H SOLUS);
             err=calllib(obj.LIBALIAS, 'SOLUS_Destr', obj.s);
             SOLUS.checkError(err);
@@ -395,6 +457,9 @@ classdef SOLUS < handle
     methods (Static)
         function yes = isLibLoad()
             yes = libisloaded(SOLUS.LIBALIAS);
+        end
+        function n = numInstances()
+            n = SOLUS.getOrIncrementInstCount();
         end
         
         function mex=loadLib()
@@ -449,6 +514,10 @@ classdef SOLUS < handle
             throw(ME);
         end
         function adjustProtofile(filename)
+            repl{7}={'structs.Frame.members', 'error', 'uint16'};
+            repl{6}={'fcns.name{fcnNum}=''SOLUS_GetMeasurement'';', 'errorPtr', 'uint16Ptr'};
+            repl{5}={'fcns.name{fcnNum}=''SOLUS_GetStatusOptode'';', 'voidPtr', 'uint16Ptr'};
+            repl{4}={'fcns.name{fcnNum}=''SOLUS_GetStatusControl'';', 'voidPtr', 'uint16Ptr'};
             repl{3}={'fcns.name{fcnNum}=''SOLUS_GetDiagOptode'';', 's_LD_AnalogPtr', 'uint16Ptr'};
             repl{2}={'fcns.name{fcnNum}=''SOLUS_SetSequence'';', 's_Sequence_LinePtr', 'voidPtr'};
             repl{1}={'fcns.name{fcnNum}=''SOLUS_GetSequence'';', 's_Sequence_LinePtr', 'uint8Ptr'};
@@ -464,6 +533,16 @@ classdef SOLUS < handle
             fid=fopen(filename,'w');
             fwrite(fid,str,'char');
             fclose(fid);
+        end
+        function n_inst = getOrIncrementInstCount(increment)
+            persistent N_INSTANCES
+            if isempty(N_INSTANCES)
+                N_INSTANCES = 0;
+            end
+            n_inst = N_INSTANCES;
+            if nargin > 0
+                N_INSTANCES = N_INSTANCES + increment;
+            end
         end
     end
 end

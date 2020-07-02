@@ -15,6 +15,10 @@ classdef SOLUS_SequenceLine
     %
     %   Rev 1.0-20/11/2019: first issue
     
+    properties (Constant)
+        LASER_OFF = 255;
+    end
+
     properties
         meas_time = single(0);
         attenuation = zeros(1,8,'uint16');
@@ -68,7 +72,7 @@ classdef SOLUS_SequenceLine
             if isa(str,'struct')
                 fields={'meas_time', 'attenuation', 'gate_delay_coarse', 'gate_delay_fine', 'laser_num'};
                 ok=true;
-                for k=1:length(fields);
+                for k=1:length(fields)
                     if ~isfield(str,fields{k})
                         ok=false;
                         break;

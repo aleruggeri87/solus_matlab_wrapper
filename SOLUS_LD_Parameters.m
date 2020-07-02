@@ -10,7 +10,7 @@ classdef SOLUS_LD_Parameters
     %   Usage:
     %   ldp = SOLUS_LD_Parameters(); initialize and fill all the parameters with 0
     %   ldp = SOLUS_LD_Parameters(ld_struct); initialize and fill with data from the struct. 
-    %   ldp = SOLUS_LD_Parameters(d_f, d_c, w_f, w_c, i_f, i_c, c, s_f, s_c);
+    %   ldp = SOLUS_LD_Parameters(d_f, d_c, w_f, w_c, i_f, i_c, c, s_f, s_c, c_l);
     %       initialize and fill data with given parameters.
     %
     %   Rev 1.0-20/11/2019: first issue
@@ -25,18 +25,19 @@ classdef SOLUS_LD_Parameters
         citr = zeros(1,4,'uint8');
         sync_f = uint16(0);
         sync_c = uint8(0);
+        current_limit = int16(0);
     end
     
     methods
         % constructor / inizializator
-        function obj = SOLUS_LD_Parameters(d_f__struct, d_c, w_f, w_c, i_f, i_c, c, s_f, s_c)
-            if nargin ~= 0 && nargin ~= 1 && nargin ~= 9
+        function obj = SOLUS_LD_Parameters(d_f__struct, d_c, w_f, w_c, i_f, i_c, c, s_f, s_c, c_l)
+            if nargin ~= 0 && nargin ~= 1 && nargin ~= 10
                 error('SOLUS_LD_Parameters:wrongArgs',...
-                    'SOLUS_LD_Parameters must be called with 0, 1 or 9 arguments');
+                    'SOLUS_LD_Parameters must be called with 0, 1 or 10 arguments');
             end
             if nargin == 1
                 obj=obj.fromStruct(d_f__struct);
-            elseif nargin == 9
+            elseif nargin == 10
                 obj.delay_f=d_f__struct;
                 obj.delay_c=d_c;
                 obj.width_f=w_f;
@@ -46,6 +47,7 @@ classdef SOLUS_LD_Parameters
                 obj.citr=c;
                 obj.sync_f=s_f;
                 obj.sync_c=s_c;
+                obj.current_limit=c_l;
             end
         end
         
@@ -62,6 +64,7 @@ classdef SOLUS_LD_Parameters
                     ok=ok && all(obj1(k).citr==obj2(k).citr);
                     ok=ok && obj1(k).sync_f==obj2(k).sync_f;
                     ok=ok && obj1(k).sync_c==obj2(k).sync_c;
+                    ok=ok && obj1(k).current_limit==obj2(k).current_limit;
                 end
             else
                 ok=false;
@@ -73,15 +76,15 @@ classdef SOLUS_LD_Parameters
             LD_str=struct('DELAY_F', obj.delay_f, 'DELAY_C', obj.delay_c,...
                 'WIDTH_F', obj.width_f, 'WIDTH_C', obj.width_c,...
                 'I_FINE', obj.current_f, 'I_COARSE', obj.current_c,...
-                'CITR', obj.citr, 'SYNCD_F', obj.sync_f, 'SYNCD_C', obj.sync_c);
+                'CITR', obj.citr, 'SYNCD_F', obj.sync_f, 'SYNCD_C', obj.sync_c, 'CURRENT_LIMIT', obj.current_limit);
         end
         
         % convert from struct
         function obj=fromStruct(obj, str)
             if isa(str,'struct')
-                fields={'DELAY_F', 'DELAY_C', 'WIDTH_F', 'WIDTH_C', 'I_FINE', 'I_COARSE', 'CITR', 'SYNCD_F', 'SYNCD_C'};
+                fields={'DELAY_F', 'DELAY_C', 'WIDTH_F', 'WIDTH_C', 'I_FINE', 'I_COARSE', 'CITR', 'SYNCD_F', 'SYNCD_C', 'CURRENT_LIMIT'};
                 ok=true;
-                for k=1:length(fields);
+                for k=1:length(fields)
                     if ~isfield(str,fields{k})
                         ok=false;
                         break;
@@ -97,6 +100,7 @@ classdef SOLUS_LD_Parameters
                     obj.citr=str.CITR;
                     obj.sync_f=str.SYNCD_F;
                     obj.sync_c=str.SYNCD_C;
+                    obj.current_limit=str.CURRENT_LIMIT;
                 else
                     error('SOLUS_LD_Parameters:wrongArgs',...
                     'Input argument of SOLUS_LD_Parameters does not contains all the expected fields');
@@ -171,6 +175,13 @@ classdef SOLUS_LD_Parameters
         function obj = set.sync_c(obj,val)
             if isscalar(val)
                 obj.sync_c=uint8(val);
+            else
+                SOLUS_LD_Parameters.printError(1);
+            end
+        end
+        function obj = set.current_limit(obj,val)
+            if isscalar(val)
+                obj.current_limit=int16(val);
             else
                 SOLUS_LD_Parameters.printError(1);
             end

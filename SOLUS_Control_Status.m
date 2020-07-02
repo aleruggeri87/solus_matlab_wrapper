@@ -1,4 +1,4 @@
-classdef SOLUS_Control_Status
+classdef SOLUS_Control_Status < objArr
     % SOLUS_Control_Status 
     %
     %   Author(s):  Alessandro RUGGERI
@@ -22,7 +22,9 @@ classdef SOLUS_Control_Status
         Vinput_limit=false;
         P5V_error=false;
         Vpol_error_oth=false;
-        meas_state=0;
+        Error_optode=false;
+        LD_I_limit=false;
+        power_disabled=false;
         stusb_bad_cfg=false;
         usbC_pow=0; % 0: error, 1: contracted 2.5W, 2: >15W, 3: >20W
         interlock_active=false;
@@ -36,7 +38,9 @@ classdef SOLUS_Control_Status
                     'SOLUS_Control_Status must be called with 0 or 1 argument');
             end
             if nargin == 1
-                obj=obj.fromInt(num);
+                for k=1:numel(num)
+                    obj(k)=obj(1).fromInt(num(k));
+                end
             end
         end
         
@@ -44,7 +48,8 @@ classdef SOLUS_Control_Status
         function int = toInt(obj)
             int=uint16(obj.q_fromPC_is_full+obj.q_fromPC_data_is_full*2+obj.Vpol_error_run*4+obj.Ispad_limit*8+...
                 obj.Pinput_limit*16+obj.Vinput_limit*32+obj.P5V_error*64+obj.Vpol_error_oth*128+...
-                obj.meas_state*256+obj.stusb_bad_cfg*4096+obj.usbC_pow*8192+obj.interlock_active*32768);
+                obj.Error_optode*256+obj.LD_I_limit*512+obj.power_disabled*1024+obj.stusb_bad_cfg*4096+...
+                obj.usbC_pow*8192+obj.interlock_active*32768);
         end
         %% convert from int
         function obj = fromInt(obj, num)
@@ -57,9 +62,11 @@ classdef SOLUS_Control_Status
                 obj.Vinput_limit=bitget(num,6);
                 obj.P5V_error=bitget(num,7);
                 obj.Vpol_error_oth=bitget(num,8);
-                obj.meas_state=uint16(sum(bitget(num,9:12).*uint16([1 2 4 8])));
+                obj.Error_optode=bitget(num,9);
+                obj.LD_I_limit=bitget(num,10);
+                obj.power_disabled=bitget(num,11);
                 obj.stusb_bad_cfg=bitget(num,13);
-                obj.usbC_pow=uint16(sum(bitget(num,14:15).*uint16([1 2])));
+                obj.usbC_pow=bitget(num,15)*2+bitget(num,14);
                 obj.interlock_active=bitget(num,16);
             else
                 error('SOLUS_Control_Status:wrongArgs',...

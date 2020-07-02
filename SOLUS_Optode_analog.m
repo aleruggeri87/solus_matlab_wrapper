@@ -1,4 +1,4 @@
-    classdef SOLUS_Optode_analog
+    classdef SOLUS_Optode_analog < objArr
     % SOLUS_Optode_analog
     %
     %   Author(s):  Alessandro RUGGERI
@@ -47,7 +47,7 @@
         
         % convert class to struct
         function str = toStruct(obj)
-            for k=1:length(obj.fields);
+            for k=1:length(obj.fields)
                 str.(obj.fields{k})=obj.(obj.fields{k});
             end
         end
@@ -56,7 +56,7 @@
             % convert struct to class
             if isa(str,'struct')
                 ok=true;
-                for k=1:length(obj.fields);
+                for k=1:length(obj.fields)
                     if ~isfield(str,obj.fields{k})
                         ok=false;
                         break;

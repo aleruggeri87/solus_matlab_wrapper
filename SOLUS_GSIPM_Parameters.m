@@ -1,4 +1,4 @@
-classdef SOLUS_GSIPM_Parameters
+classdef SOLUS_GSIPM_Parameters < objArr
     % SOLUS_GSIPM_Parameters 
     %
     %   Author(s):  Alessandro RUGGERI
@@ -75,7 +75,7 @@ classdef SOLUS_GSIPM_Parameters
             if isa(str,'struct')
                 fields={'EN_QUADRANT_1', 'EN_QUADRANT_2', 'EN_QUADRANT_3', 'EN_QUADRANT_4', 'STOP', 'GATE_CLOSE', 'GATE_OPEN'};
                 ok=true;
-                for k=1:length(fields);
+                for k=1:length(fields)
                     if ~isfield(str,fields{k})
                         ok=false;
                         break;
