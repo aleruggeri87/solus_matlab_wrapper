@@ -25,7 +25,7 @@ classdef SOLUS < handle
         OPTODE7 = 6;
         OPTODE8 = 7;
         CONTROL = 8;
-        N_ROWS=384;
+        N_ROWS=768;
     end
     
     properties (Constant, Access = private)
@@ -91,7 +91,7 @@ classdef SOLUS < handle
             end
             if length(seq) > obj.N_ROWS
                 SOLUS.printError('badLength',...
-                    ['Input sequence must be shorter than ' num2str(obj.N_ROWS+1) ' elements']);
+                    ['Input sequence must be shorter than ' num2str(obj.N_ROWS) ' elements']);
             end
 
             seq_byte=zeros(1,obj.N_ROWS*45,'uint8');

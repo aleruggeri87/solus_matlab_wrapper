@@ -66,7 +66,7 @@ extern "C" {
 	*/
 	/*@{*/
 
-#define MAX_SEQUENCE 384						/**<Max Sequence Lenght.*/
+#define MAX_SEQUENCE 768//384//1536						/**<Max Sequence Lenght.*/
 #define MAX_FRAMES 384*8						/**<Max frames.*/
 #define HISTOGRAM_BINS 128						/**<Number of histogram bins.*/
 #define FRAME_SIZE_INT_HIST (2 + 4 + 192 + 2 + 2 + 2)	/**<Frame size histogram mode. Status + CR + HIST + SPAD_on + GSIPM_temp + LD_current*/
