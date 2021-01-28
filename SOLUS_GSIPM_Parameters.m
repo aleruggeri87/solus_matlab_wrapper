@@ -69,7 +69,7 @@ classdef SOLUS_GSIPM_Parameters < objArr
                 'STOP', obj.stop,...
                 'GATE_CLOSE', obj.gate_close, 'GATE_OPEN', obj.gate_open);
         end
-        %% convert from struct
+        % convert from struct
         function obj = fromStruct(obj, str)
             % convert struct to class
             if isa(str,'struct')
@@ -98,6 +98,12 @@ classdef SOLUS_GSIPM_Parameters < objArr
                     'Input argument of SOLUS_GSIPM_Parameters must be a struct');
             end
         end
+        % convert to uint8 array
+        function u8a=toUint8A(obj)
+            u8a=[obj.en1, obj.en2, obj.en3, obj.en4, obj.stop,...
+                 obj.gate_close, obj.gate_open];
+        end
+        
         % below functions to validate input parameters size
         % and convert to the desired type
         function obj = set.en1(obj,val)

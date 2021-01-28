@@ -48,7 +48,7 @@ classdef SOLUS_Control_Parameters
             LD_str=struct('LD_Voltage', obj.LD_Voltage, 'SPAD_Voltage', obj.SPAD_Voltage,...
                 'GSIPM3v3_Voltage', obj.GSIPM3v3_Voltage,'PAUSE_TIME',obj.Pause_Time,'LD_CURRENT_LIMIT',obj.LD_Current_Limit,'LD_CURRENT_AVERAGE_LENGTH',obj.LD_Current_Average_Len);
         end
-        %% convert from struct
+        % convert from struct
         function obj = fromStruct(obj, str)
             % convert struct to class
             if isa(str,'struct')
@@ -76,6 +76,16 @@ classdef SOLUS_Control_Parameters
                     'Input argument of SOLUS_Control_Parameters must be a struct');
             end
         end
+        % convert to uint8 array
+        function u8a=toUint8A(obj)
+            u8a=[typecast(obj.LD_Voltage,'uint8'), ...
+                 typecast(obj.SPAD_Voltage,'uint8'), ...
+                 typecast(obj.GSIPM3v3_Voltage,'uint8'), ...
+                 typecast(obj.Pause_Time,'uint8'), ...
+                 typecast(obj.LD_Current_Limit,'uint8'), ...
+                 typecast(obj.LD_Current_Average_Len,'uint8')];
+        end
+        
         % below functions to validate input parameters size
         % and convert to the desired type
         function obj = set.LD_Voltage(obj,val)

@@ -43,7 +43,7 @@ classdef SOLUS_Flags
                 obj.TURNOFF_UNUSED_LD*32+obj.TRIM_METHOD*64+obj.DISABLE_INTERLOCK*256+...
                 obj.ENABLE_SYNCOUT*512);
         end
-        %% convert from int
+        % convert from int
         function obj = fromInt(obj, num)
             if isnumeric(num)
                 if isa(num,'uint16')

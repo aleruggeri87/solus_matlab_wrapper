@@ -1,0 +1,4 @@
+[submodule "logger"]
+	path = logger
+	url = https://github.com/aleruggeri87/matlab_logger
+	branch = master

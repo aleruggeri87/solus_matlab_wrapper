@@ -58,7 +58,7 @@ classdef SOLUS_Autocal_Parameters
                 'meas_time', uint16(obj.meas_time/100e-6),...
                 'steps', obj.steps, 'start_pos', obj.start_pos);
         end
-        %% convert from struct
+        % convert from struct
         function obj = fromStruct(obj, str)
             % convert struct to class
             if isa(str,'struct')
@@ -82,6 +82,14 @@ classdef SOLUS_Autocal_Parameters
                 error('Input argument of SOLUS_Autocal_Parameters must be a struct');
             end
         end
+        % convert to uint8 array
+        function u8a=toUint8A(obj)
+            u8a=[typecast(obj.goal,'uint8'), ...
+                 typecast(obj.meas_time,'uint8'), ...
+                 typecast(obj.steps,'uint8'), ...
+                 typecast(obj.start_pos,'uint8')];
+        end
+        
         % below functions to validate input parameters size
         % and convert to the desired type
         function obj = set.goal(obj,val)

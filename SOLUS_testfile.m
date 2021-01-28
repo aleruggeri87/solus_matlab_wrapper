@@ -36,6 +36,8 @@ controlParams=SOLUS_Control_Parameters(2, SPAD_VOLT*1000, 0, ...
 
 % Class Constructor
 HL=SOLUS_HL();
+HL.solus.log.open('log.txt');
+HL.solus.log.level=logger.LOG_DEBUG;
 
 % set loaded settings
 HL.calibMap_set(cal_map,repmat(MAX_AREA,8,1));
@@ -43,6 +45,8 @@ HL.OptodeParams_set(ld_par,gsipm_par);
 HL.AutocalParams=acParams;
 HL.flags=flags;
 HL.solus.SetControlParams(controlParams)
+HL.solus.GetStatusControl
+HL
 
 %%
 NSTEP_SEQ=100; % reduce sequence length

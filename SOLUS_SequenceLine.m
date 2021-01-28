@@ -93,6 +93,13 @@ classdef SOLUS_SequenceLine
                     'Input argument of SOLUS_SequenceLine must be a struct');
             end            
         end
+        % convert to uint8 array
+        function u8a=toUint8A(obj)
+            u8a=[typecast(obj.meas_time,'uint8'), ...
+                 typecast(obj.attenuation,'uint8'), ...
+                 typecast(obj.gate_delay_c,'uint8'), ...
+                 typecast(obj.gate_delay_f,'uint8'), obj.laser_num];
+        end
         
         % below functions to validate input parameters size
         % and convert to the desired type

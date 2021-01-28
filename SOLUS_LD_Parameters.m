@@ -105,10 +105,19 @@ classdef SOLUS_LD_Parameters
                     error('SOLUS_LD_Parameters:wrongArgs',...
                     'Input argument of SOLUS_LD_Parameters does not contains all the expected fields');
                 end
-                else
+            else
                 error('SOLUS_LD_Parameters:wrongArgs',...
                     'Input argument of SOLUS_LD_Parameters must be a struct');
-            end            
+            end
+        end
+        
+        % convert to uint8 array
+        function u8a=toUint8A(obj)
+            u8a=[typecast(obj.delay_f,'uint8'), obj.delay_c, ...
+                 typecast(obj.width_f,'uint8'), obj.width_c, ...
+                 typecast(obj.current_f,'uint8'), obj.current_c, ...
+                 obj.citr, typecast(obj.sync_f,'uint8'), obj.sync_c, ...
+                 typecast(obj.current_limit,'uint8')];
         end
         
         % below functions to validate input parameters size

@@ -51,7 +51,7 @@ classdef SOLUS_Optode_Status < objArr
                 obj.LD_overtemp*2048+obj.LD_others*4096+obj.pic_temperature_range*8192+...
                 obj.interlock*32768;
         end
-        %% convert from int
+        % convert from int
         function obj = fromInt(obj, num)
             if isa(num,'uint16')
                 obj.measurement_ready_to_start=bitget(num,1);
@@ -72,6 +72,13 @@ classdef SOLUS_Optode_Status < objArr
                 error('SOLUS_Optode_Status:wrongArgs',...
                     'Input argument of SOLUS_Optode_Status must be a uint16');
             end
+        end
+        % convert to uint8 array
+        function u8a=toUint8A(obj)
+            u8a=[typecast(obj.goal,'uint8'), ...
+                 typecast(obj.meas_time,'uint8'), ...
+                 typecast(obj.steps,'uint8'), ...
+                 typecast(obj.start_pos,'uint8')];
         end
     end
 end
