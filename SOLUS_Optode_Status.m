@@ -2,21 +2,24 @@ classdef SOLUS_Optode_Status < objArr
     % SOLUS_Optode_Status 
     %
     %   Author(s):  Alessandro RUGGERI
-    %   Revision:   1.0 
-    %   Date:       25/11/2019
+    %   Revision:   1.1 
+    %   Date:       09/04/2021
     %
-    %   Copyright 2019  Micro Photon Devices
+    %   Copyright 2019-2021  Micro Photon Devices
     %   
     %   Usage:
     %   Ostatus = SOLUS_Optode_Status(); initialize and fill all the parameters with 0
     %   Ostatus = SOLUS_Optode_Status(int16); initialize and fill with data from the int16. 
     %
     %   Rev 1.0-25/11/2019: first issue
+    %   Rev 1.1-09/04/2021: update flags:
+    %                                    remove measurement_in_progress,
+    %                                    add    measurement_ready_to_program
     
     properties(SetAccess = private)
         measurement_ready_to_start=false;
-        measurement_in_progress=false;
         measurement_ready_to_read=false;
+        measurement_ready_to_program=false;
         gspim_core_current_range=0;
         LD_conf_bad=false;
         cmd_queue_full=false;
@@ -44,8 +47,8 @@ classdef SOLUS_Optode_Status < objArr
         
         % convert class to int
         function int = toInt(obj)
-            int=obj.measurement_ready_to_start+obj.measurement_in_progress*2+...
-                obj.measurement_ready_to_read*4+obj.gspim_core_current_range*8+...
+            int=obj.measurement_ready_to_start+obj.measurement_ready_to_read*2+...
+                obj.measurement_ready_to_program*4+obj.gspim_core_current_range*8+...
                 obj.LD_conf_bad*32+obj.cmd_queue_full*64+obj.gsipm_passthrough_err*128+...
                 obj.i2c_error*256+obj.LD_pll_lock_error*512+obj.LD_overcurrent*1024+...
                 obj.LD_overtemp*2048+obj.LD_others*4096+obj.pic_temperature_range*8192+...
@@ -55,8 +58,8 @@ classdef SOLUS_Optode_Status < objArr
         function obj = fromInt(obj, num)
             if isa(num,'uint16')
                 obj.measurement_ready_to_start=bitget(num,1);
-                obj.measurement_in_progress=bitget(num,2);
-                obj.measurement_ready_to_read=bitget(num,3);
+                obj.measurement_ready_to_read=bitget(num,2);
+                obj.measurement_ready_to_program=bitget(num,3);
                 obj.gspim_core_current_range=uint16(sum(bitget(num,4:5).*uint16([1 2])));
                 obj.LD_conf_bad=bitget(num,6);
                 obj.cmd_queue_full=bitget(num,7);
