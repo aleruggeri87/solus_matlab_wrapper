@@ -73,12 +73,5 @@ classdef SOLUS_Optode_Status < objArr
                     'Input argument of SOLUS_Optode_Status must be a uint16');
             end
         end
-        % convert to uint8 array
-        function u8a=toUint8A(obj)
-            u8a=[typecast(obj.goal,'uint8'), ...
-                 typecast(obj.meas_time,'uint8'), ...
-                 typecast(obj.steps,'uint8'), ...
-                 typecast(obj.start_pos,'uint8')];
-        end
     end
 end

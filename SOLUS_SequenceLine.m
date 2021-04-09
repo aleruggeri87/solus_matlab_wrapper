@@ -100,6 +100,15 @@ classdef SOLUS_SequenceLine
                  typecast(obj.gate_delay_c,'uint8'), ...
                  typecast(obj.gate_delay_f,'uint8'), obj.laser_num];
         end
+
+        % convert from uint8 array
+        function obj=fromUint8A(obj, u8a)
+            obj.meas_time=typecast(u8a(1:4),'single');
+            obj.attenuation=typecast(u8a(5:20),'uint16');
+            obj.gate_delay_c=u8a(21:28);
+            obj.gate_delay_f=typecast(u8a(29:44),'uint16');
+            obj.laser_num=u8a(45);
+        end
         
         % below functions to validate input parameters size
         % and convert to the desired type

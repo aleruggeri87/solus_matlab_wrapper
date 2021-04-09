@@ -90,6 +90,14 @@ classdef SOLUS_Autocal_Parameters
                  typecast(obj.start_pos,'uint8')];
         end
         
+        % convert from uint8 array
+        function obj=fromUint8A(obj, u8a)
+            obj.goal=u8a(1);
+            obj.meas_time=u8a(2);
+            obj.steps=u8a(3);
+            obj.start_pos=u8a(4);
+        end
+        
         % below functions to validate input parameters size
         % and convert to the desired type
         function obj = set.goal(obj,val)

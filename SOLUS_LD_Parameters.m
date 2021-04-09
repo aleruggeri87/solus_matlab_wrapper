@@ -120,6 +120,20 @@ classdef SOLUS_LD_Parameters
                  typecast(obj.current_limit,'uint8')];
         end
         
+        % convert from uint8 array
+        function obj=fromUint8A(obj, u8a)
+            obj.delay_f=typecast(u8a(1:16),'uint16');
+            obj.delay_c=u8a(17:24);
+            obj.width_f=typecast(u8a(25:40),'uint16');
+            obj.width_c=u8a(41:48);
+            obj.current_f=typecast(u8a(49:64),'uint16');
+            obj.current_c=u8a(65:72);
+            obj.citr=u8a(73:76);
+            obj.sync_f=typecast(u8a(77:78),'uint16');
+            obj.sync_c=u8a(79);
+            obj.current_limit=typecast(u8a(80:81),'int16');
+        end
+        
         % below functions to validate input parameters size
         % and convert to the desired type
         function obj = set.delay_f(obj,val)

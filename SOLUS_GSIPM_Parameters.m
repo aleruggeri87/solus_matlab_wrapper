@@ -104,6 +104,17 @@ classdef SOLUS_GSIPM_Parameters < objArr
                  obj.gate_close, obj.gate_open];
         end
         
+        % convert from uint8 array
+        function obj=fromUint8A(obj, u8a)
+            obj.en1=u8a(1);
+            obj.en2=u8a(2);
+            obj.en3=u8a(3);
+            obj.en4=u8a(4);
+            obj.stop=u8a(5);
+            obj.gate_close=u8a(6);
+            obj.gate_open=u8a(7);
+        end
+        
         % below functions to validate input parameters size
         % and convert to the desired type
         function obj = set.en1(obj,val)

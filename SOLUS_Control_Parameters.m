@@ -86,6 +86,16 @@ classdef SOLUS_Control_Parameters
                  typecast(obj.LD_Current_Average_Len,'uint8')];
         end
         
+        % convert from uint8 array
+        function obj=fromUint8A(obj, u8a)
+            obj.LD_Voltage=u8a(1);
+            obj.SPAD_Voltage=u8a(2);
+            obj.GSIPM3v3_Voltage=u8a(3);
+            obj.Pause_Time=u8a(4);
+            obj.LD_Current_Limit=u8a(5);
+            obj.LD_Current_Average_Len=u8a(6);
+        end
+        
         % below functions to validate input parameters size
         % and convert to the desired type
         function obj = set.LD_Voltage(obj,val)
