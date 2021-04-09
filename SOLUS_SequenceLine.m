@@ -28,14 +28,14 @@ classdef SOLUS_SequenceLine
     end
     
     methods
-        % constructor / inizializator
+        % constructor / initialization
         function obj = SOLUS_SequenceLine(meas_time__struct, atten, gdc, gdf, las_num)
             if nargin ~= 0 && nargin ~= 1 && nargin ~= 5
                 error('SOLUS_SequenceLine:wrongArgs',...
                     'SOLUS_SequenceLine must be called with 0, 1 or 5 arguments');
             end
             if nargin == 1
-                obj.fromStruct(d_f__struct);                
+                obj.fromStruct(meas_time__struct);
             elseif nargin == 5
                 obj.meas_time=meas_time__struct;
                 obj.attenuation=atten;
