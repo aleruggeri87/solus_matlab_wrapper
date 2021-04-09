@@ -553,7 +553,7 @@ classdef SOLUS < handle
                         'ReadCalibrationMap', 'GetCalibrationMap'}
                     thedata=['O:' num2str(va{2})];
                 case 'GetStatusOptode'
-                    thedata=['O:' num2str(va{2}) ', S:' num2str(va{3}.toInt())];
+                    thedata=['O:' num2str(va{2}) ', S:' num2str(va{3})];
                 case 'PowerSupply'
                     thedata=['O:' num2str(va{2}), ', C:' num2str(va{2}), ];
                 otherwise
