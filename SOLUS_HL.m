@@ -325,6 +325,27 @@ classdef SOLUS_HL < handle
             table_ale(data,label,title,3)
         end
         
+        function print_analogLD(obj)
+            title='Laser Drivers Analog Acquisitions';
+            label={'ILDK', 'VCI', 'V18', 'VDD', 'Temp'};
+            col1={''};
+            s=reshape(obj.analogLD.toStruct,1,[]);
+            data=zeros(32,5);
+            for k=1:32
+                for j=1:5
+                    data(k,j)=s(k).(label{j});
+                end
+            end
+            i=1;
+            for k=1:8
+                for j=1:4
+                    col1{i}=sprintf('O%d-L%d \b',k,j);
+                    i=i+1;
+                end
+            end
+            table_ale(data,['LD ID', label],title,4,col1')
+        end
+        
         %% plot
         function [T,t]=plot_temperature_vs_time(obj, Tm)
             N=Tm*10;
