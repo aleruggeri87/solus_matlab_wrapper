@@ -41,8 +41,12 @@ classdef SOLUS_LD_analog
         
         % convert class to struct
         function str = toStruct(obj)
-            for k=1:length(obj.fields)
-                str.(obj.fields{k})=obj.(obj.fields{k});
+            f=SOLUS_LD_analog.fields;
+            str=repmat(cell2struct({[],[],[],[],[]}',f),size(obj));
+            for j=1:numel(obj)
+                for k=1:length(f)
+                    str(j).(f{k})=obj(j).(f{k});
+                end
             end
         end
         %% convert from struct/array
